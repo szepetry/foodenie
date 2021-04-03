@@ -42,7 +42,7 @@ class _SignInPageState extends State<SignInPage> {
                         textBaseline: TextBaseline.alphabetic),
                   ),
                   Text(
-                    'ShopApp',
+                    'Foodenie',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 35,
