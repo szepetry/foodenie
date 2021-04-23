@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:foodenie/auth/Auth.dart';
+import 'package:foodenie/weather/location.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
+
+// apikey for weather data
+const apiKey = "49470311c443d67979763092262f5e36";
 
 class HomePage extends StatefulWidget {
   final Auth auth;
@@ -9,11 +15,63 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+// latitude and longitude variables.
+  double latitude;
+  double longitude;
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
   List<Map<String, dynamic>> popUpMenuItems = [
     {"option": "Signout"}
   ];
+
+ 
+
+  /// location
+  void getlocation() async {
+   
+     
+    Location location = new Location();
+   
+    await location.getCurrentLocation();
+
+     latitude = location.latitude;
+    longitude = location.longitude;
+    getData();
+   
+  }
+
+  void getData() async {
+
+    http.Response response = await http.get(Uri.parse(
+
+      'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey'));
+    if(response.statusCode == 200){
+     String data =  response.body;
+     var decodedData = convert.jsonDecode(data);
+     double temperature = decodedData['main']['temp'];
+     String weatherDescription = decodedData['weather'][0]['description'];
+      String cityName = decodedData['name'];
+    //  double condition = decodedData['weather'][0]['id'];
+      print(temperature);
+      print(weatherDescription);
+      print(cityName);
+     // print(condition);
+    }
+    else{
+      print(response.statusCode);
+    }
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    print("xxxx");
+
+    getlocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,21 +113,25 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                Container(
-                  margin: EdgeInsets.only(top: getScreenSize.height * 0.04),
-                  width: getScreenSize.width * 0.4,
-                  height: getScreenSize.width * 0.4,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    gradient:
-                        LinearGradient(colors: [Colors.blue[200], Colors.blue]),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(200),
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    margin: EdgeInsets.only(top: getScreenSize.height * 0.04),
+                    width: getScreenSize.width * 0.4,
+                    height: getScreenSize.width * 0.4,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Colors.blue[200], Colors.blue]),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(200),
+                      ),
                     ),
+                    child: Text('Hot n cool',
+                        style: TextStyle(color: Colors.white, fontSize: 20)),
                   ),
-                  child: Text('Hot n cool',
-                      style: TextStyle(color: Colors.white, fontSize: 20)),
-                )
+                ),
+               
               ],
             ),
           ),

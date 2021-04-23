@@ -33,6 +33,8 @@ dependencies:
   google_sign_in: ^5.0.1
   firebase_core: ^1.0.2
   provider: ^5.0.0
+  geolocator: ^7.0.1
+  http: ^0.13.1
 
 dev_dependencies:
   flutter_test:
