@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodenie/auth/Auth.dart';
-import 'package:foodenie/weather/location.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
-
-// apikey for weather data
-const apiKey = "49470311c443d67979763092262f5e36";
+import 'package:foodenie/pages/loading.dart';
 
 class HomePage extends StatefulWidget {
   final Auth auth;
@@ -15,62 +10,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-// latitude and longitude variables.
-  double latitude;
-  double longitude;
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
   List<Map<String, dynamic>> popUpMenuItems = [
     {"option": "Signout"}
   ];
 
- 
-
-  /// location
-  void getlocation() async {
-   
-     
-    Location location = new Location();
-   
-    await location.getCurrentLocation();
-
-     latitude = location.latitude;
-    longitude = location.longitude;
-    getData();
-   
-  }
-
-  void getData() async {
-
-    http.Response response = await http.get(Uri.parse(
-
-      'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey'));
-    if(response.statusCode == 200){
-     String data =  response.body;
-     var decodedData = convert.jsonDecode(data);
-     double temperature = decodedData['main']['temp'];
-     String weatherDescription = decodedData['weather'][0]['description'];
-      String cityName = decodedData['name'];
-    //  double condition = decodedData['weather'][0]['id'];
-      print(temperature);
-      print(weatherDescription);
-      print(cityName);
-     // print(condition);
-    }
-    else{
-      print(response.statusCode);
-    }
-
-  }
-
+  /// to get the current location and the data.
   @override
   void initState() {
     super.initState();
-
-    print("xxxx");
-
-    getlocation();
   }
 
   @override
@@ -131,7 +80,17 @@ class _HomePageState extends State<HomePage> {
                         style: TextStyle(color: Colors.white, fontSize: 20)),
                   ),
                 ),
-               
+                SizedBox(
+                  width: 100,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder:(context){
+                      return LoadingPage();
+                    }));
+                  },
+                  child: Text('Next Page'),
+                ),
               ],
             ),
           ),
@@ -140,3 +99,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
