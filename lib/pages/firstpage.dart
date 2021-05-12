@@ -4,8 +4,25 @@ import 'package:foodenie/utilities/reusableCard.dart';
 import 'package:foodenie/utilities/selectedCard.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-//enum for all the customization options.
-enum Options { veg, nonVeg, diet, snacks, sweets,beverages}
+
+
+List<String> itemNames = [
+  'veg',
+  'nonVeg',
+  'diet',
+  'snacks',
+  'sweets',
+  'beverages'
+];
+
+Map<String, Color> colorOfItem = {
+  'veg': normalColor,
+  'nonVeg': normalColor,
+  'diet': normalColor,
+  'snacks': normalColor,
+  'sweets': normalColor,
+  'beverages': normalColor,
+};
 
 class FirstPage extends StatefulWidget {
   final weatherLocation;
@@ -68,26 +85,19 @@ class _FirstPageState extends State<FirstPage> {
               ],
             ));
   }
+  void colorActivityOfCard(String item) {
+    if (item == 'veg' || item == 'nonVeg') {
+      item == 'veg'
+          ? colorOfItem['veg'] = activeColor
+          : colorOfItem['veg'] = normalColor;
 
-  var nonVegColour = inactiveColor;
-  var vegColour = inactiveColor;
-  var otherColour = inactiveColor;
-  var dietColour = inactiveColor;
-  int weight = 60;
-  int age = 19;
-
-//for selecting either one option(either veg or non-veg)
-  void colorDec(Options typeOfMeal) {
-    typeOfMeal == Options.veg
-        ? vegColour = colourOfCard
-        : vegColour = inactiveColor;
-    typeOfMeal == Options.nonVeg
-        ? nonVegColour = colourOfCard
-        : nonVegColour = inactiveColor;
-    if (typeOfMeal == Options.diet) {
-      dietColour == colourOfCard
-          ? dietColour = inactiveColor
-          : dietColour = colourOfCard;
+      item == 'nonVeg'
+          ? colorOfItem['nonVeg'] = activeColor
+          : colorOfItem['nonVeg'] = normalColor;
+    } else {
+      colorOfItem[item] == activeColor
+          ? colorOfItem[item] = normalColor
+          : colorOfItem[item] = activeColor;
     }
   }
 
@@ -111,12 +121,12 @@ class _FirstPageState extends State<FirstPage> {
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                        colorDec(Options.veg);
+                        colorActivityOfCard('veg');
                       });
                     },
-                    colour: Color(vegColour),
-                    cardChild: GenderCard(
-                      gender: 'Veg',
+                    colour: colorOfItem['veg'],
+                    cardChild: ItemCard(
+                      item: 'Veg',
                       label: FontAwesomeIcons.leaf,
                     ),
                   ),
@@ -125,12 +135,12 @@ class _FirstPageState extends State<FirstPage> {
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                        colorDec(Options.nonVeg);
+                        colorActivityOfCard('nonVeg');
                       });
                     },
-                    colour: Color(nonVegColour),
-                    cardChild: GenderCard(
-                      gender: 'Non-Veg',
+                    colour: colorOfItem['nonVeg'],
+                    cardChild: ItemCard(
+                      item: 'Non-Veg',
                       label: FontAwesomeIcons.drumstickBite,
                     ),
                   ),
@@ -145,12 +155,12 @@ class _FirstPageState extends State<FirstPage> {
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                        colorDec(Options.diet);
+                         colorActivityOfCard('diet');
                       });
                     },
-                    colour: Color(dietColour),
-                    cardChild: GenderCard(
-                      gender: 'Diet',
+                    colour: colorOfItem['diet'],
+                    cardChild: ItemCard(
+                      item: 'Diet',
                       label: FontAwesomeIcons.dumbbell,
                     ),
                   ),
@@ -159,12 +169,12 @@ class _FirstPageState extends State<FirstPage> {
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                        colorDec(Options.snacks);
+                        colorActivityOfCard('snacks');
                       });
                     },
-                    colour: Color(otherColour),
-                    cardChild: GenderCard(
-                      gender: 'Snacks',
+                    colour: colorOfItem['snacks'],
+                    cardChild: ItemCard(
+                      item: 'Snacks',
                       label: FontAwesomeIcons.coffee,
                     ),
                   ),
@@ -172,19 +182,19 @@ class _FirstPageState extends State<FirstPage> {
               ],
             ),
           ),
-           Expanded(
+          Expanded(
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                        colorDec(Options.sweets);
+                        colorActivityOfCard('sweets');
                       });
                     },
-                    colour: Color(otherColour),
-                    cardChild: GenderCard(
-                      gender: 'Sweets',
+                    colour: colorOfItem['sweets'],
+                    cardChild: ItemCard(
+                      item: 'Sweets',
                       label: FontAwesomeIcons.cookie,
                     ),
                   ),
@@ -193,12 +203,12 @@ class _FirstPageState extends State<FirstPage> {
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                        colorDec(Options.beverages);
+                        colorActivityOfCard('beverages');
                       });
                     },
-                    colour: Color(otherColour),
-                    cardChild: GenderCard(
-                      gender: 'Beverages',
+                    colour: colorOfItem['beverages'],
+                    cardChild: ItemCard(
+                      item: 'Beverages',
                       label: FontAwesomeIcons.glassMartini,
                     ),
                   ),
@@ -206,12 +216,28 @@ class _FirstPageState extends State<FirstPage> {
               ],
             ),
           ),
+          BottomButton(
+            title: 'Submit',
+            ontap: () {
+              setState(() {
+                List<String> selectedName = [];
+                for (int i = 0; i < colorOfItem.length; i++) {
+                  if (colorOfItem[itemNames[i]] == activeColor) {
+                    selectedName.add(itemNames[i]);
+                  }
+                }
+              // print(colorOfItem.containsValue(activeColor));
+                print(selectedName);
+              });
+            },
+          ),
         ],
       ),
     );
   }
 }
 
+//for the weather info
 class WeatherDetailsText extends StatelessWidget {
   final heading;
   final item;
@@ -224,6 +250,35 @@ class WeatherDetailsText extends StatelessWidget {
         Text(heading, style: kdialogueStyle),
         Text(item, style: kdialogueConditionText),
       ],
+    );
+  }
+}
+
+//a customized button for submitting the selected items.
+class BottomButton extends StatelessWidget {
+  final Function ontap;
+  final String title;
+  BottomButton({@required this.ontap, @required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: ontap,
+      child: Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              title,
+              style: kLargeButtonTextStyle,
+            )
+          ],
+        ),
+        color: Color(0XFF1F125A),
+        margin: EdgeInsets.only(top: 4),
+        width: double.infinity,
+        height: containerHeight,
+      ),
     );
   }
 }

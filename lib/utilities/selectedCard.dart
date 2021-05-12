@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'constants.dart';
-class GenderCard extends StatelessWidget {
- final String gender;
+class ItemCard extends StatelessWidget {
+ final String item;
  final IconData label;
- GenderCard({@required this.gender,@required this.label});
+ ItemCard({@required this.item,@required this.label});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -17,7 +17,7 @@ class GenderCard extends StatelessWidget {
           height: 15.0,
         ),
         Text(
-          gender,
+          item,
           style: labelTextStyle,
         ),
       ],
