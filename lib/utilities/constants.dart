@@ -8,6 +8,7 @@ const kdialogueStyle = TextStyle(
 
 const Color activeColor = Color(0xFF9C1E5B); //color when pressed on card
 const Color normalColor = Color(0xFFBA2D4F); //color when not pressed on card
+const Color appBarColor = Color(0XFF1F125A);
 
 const kdialogueConditionText = TextStyle(
   fontSize: 20.0,

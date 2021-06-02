@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/pages/loading.dart';
+import "package:story_view/story_view.dart";
+import 'pages/story_page.dart';
 
 class HomePage extends StatefulWidget {
   final Auth auth;
@@ -10,6 +12,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  //   double get deviceWidth => MediaQuery.of(context).size.width;
+  // double get deviceHeight => MediaQuery.of(context).size.height;
+
+  final StoryController controller = StoryController();
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
   List<Map<String, dynamic>> popUpMenuItems = [
@@ -85,11 +91,116 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder:(context){
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
                       return LoadingPage();
                     }));
                   },
                   child: Text('Next Page'),
+                ),
+                Container(
+                  height: 300,
+                  padding: EdgeInsets.all(8.0),
+                  child: Stack(
+                    children: [
+                      StoryView(
+                        onVerticalSwipeComplete: (direction) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                // fullscreenDialog: true,
+                                // maintainState: true,
+                                builder: (context) => StoryPage(),
+                              ));
+                        },
+                        repeat: true,
+                        progressPosition: ProgressPosition.top,
+                        controller: controller,
+                        storyItems: [
+                          StoryItem.text(
+                            title:
+                                "Hello world!\nHave a look at some great Ghanaian delicacies. I'm sorry if your mouth waters. \n\nTap!",
+                            backgroundColor: Colors.orange,
+                            roundedTop: true,
+                          ),
+                          StoryItem.inlineImage(
+                            url:
+                                "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
+                            controller: controller,
+                            caption: Text(
+                              "Omotuo & Nkatekwan; You will love this meal if taken as supper.",
+                              style: TextStyle(
+                                color: Colors.white,
+                                backgroundColor: Colors.black54,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ),
+                          // StoryItem.inlineImage(
+                          //   NetworkImage(
+                          //       "https://image.ibb.co/gCZFbx/Banku-and-tilapia.jpg"),
+                          //   caption: Text(
+                          //     "Banku & Tilapia. The food to keep you charged whole day.\n#1 Local food.",
+                          //     style: TextStyle(
+                          //       color: Colors.white,
+                          //       backgroundColor: Colors.black54,
+                          //       fontSize: 17,
+                          //     ),
+                          //   ),
+                          // ),
+                          // StoryItem.inlineProviderImage(
+                          //   AssetImage("assets/images/1.jpg"),
+                          //   // controller: controller,
+                          // ),
+                          StoryItem.inlineImage(
+                            url:
+                                "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
+                            controller: controller,
+                            caption: Text(
+                              "Hektas, sektas and skatad",
+                              style: TextStyle(
+                                color: Colors.white,
+                                backgroundColor: Colors.black54,
+                                fontSize: 17,
+                              ),
+                            ),
+                          )
+                        ],
+
+                        // onStoryShow: (s) {
+                        //   print("Showing a story");
+                        // },
+                        // onComplete: () {
+                        //   print("Completed a cycle");
+                        // },
+                        // progressPosition: ProgressPosition.bottom,
+                        // repeat: false,
+                        // inline: true,
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SizedBox(
+                          height: 45,
+                          child: Container(
+                            color: Colors.black.withOpacity(0.3),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                  child: Icon(
+                                    Icons.arrow_drop_up,
+                                    size: 32,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text("Swipe up",style: TextStyle(color: Colors.white),)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -99,4 +210,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-

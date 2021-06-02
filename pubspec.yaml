@@ -40,6 +40,14 @@ dependencies:
   flutter_spinkit: ^5.0.0
   font_awesome_flutter: ^9.0.0
 
+  # Story dependencies
+  flutter_rating_bar: ^4.0.0
+  story_view: ^0.13.1
+  # story_view:
+  #   path: local_packages/story_view
+  
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
