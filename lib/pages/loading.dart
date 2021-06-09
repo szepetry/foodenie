@@ -56,7 +56,6 @@ class _LoadingPageState extends State<LoadingPage> {
         child: SpinKitFadingCircle(
           color: Colors.black,
           size: 60,
-
         ),
       ),
     );

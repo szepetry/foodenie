@@ -40,6 +40,9 @@ dependencies:
   flutter_spinkit: ^5.0.0
   font_awesome_flutter: ^9.0.0
 
+  #for the carousal
+  carousel_slider: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

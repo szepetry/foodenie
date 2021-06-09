@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodenie/pages/displayPage.dart';
 import 'package:foodenie/utilities/constants.dart';
 import 'package:foodenie/utilities/reusableCard.dart';
 import 'package:foodenie/utilities/selectedCard.dart';
@@ -105,7 +106,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0XFF1F125A),
+        backgroundColor: appBarColor,
         leading: GestureDetector(
           child: Icon(Icons.wb_sunny),
           onTap: _showMaterialDialog,
@@ -228,6 +229,10 @@ class _FirstPageState extends State<FirstPage> {
                 }
               // print(colorOfItem.containsValue(activeColor));
                 print(selectedName);
+                Navigator.push(context, MaterialPageRoute(builder: (context){
+      return DisplayPage();
+    }));
+
               });
             },
           ),
