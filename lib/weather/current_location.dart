@@ -1,7 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 
 
-class Location {
+class CurrentLocation {
   double latitude=5;
   double longitude;
 

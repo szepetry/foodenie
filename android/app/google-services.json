@@ -46,6 +46,14 @@
           }
         },
         {
+          "client_id": "216532867841-vnueabprt1out9creqo4vij42n8mtbli.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.foodenie",
+            "certificate_hash": "830b76b2b35ddd4a6752fbb5c20f82335963806c"
+          }
+        },
+        {
           "client_id": "216532867841-ipjc26pjjmccaokcb0n88ki5ad2485d3.apps.googleusercontent.com",
           "client_type": 3
         }

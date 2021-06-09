@@ -33,15 +33,22 @@ dependencies:
   google_sign_in: ^5.0.1
   firebase_core: ^1.0.2
   provider: ^5.0.0
-  geolocator: ^7.0.1
+  geolocator: ^7.0.3
   http: ^0.13.1
 
   #for the progressive indicator:
   flutter_spinkit: ^5.0.0
   font_awesome_flutter: ^9.0.0
 
-  #for the carousal
-  carousel_slider: ^3.0.0
+  # Story dependencies
+  flutter_rating_bar: ^4.0.0
+  story_view: ^0.13.1
+  google_maps_webservice: ^0.0.20-nullsafety.5
+  workmanager: ^0.4.1
+  # story_view:
+  #   path: local_packages/story_view
+  
+
 
 dev_dependencies:
   flutter_test:
