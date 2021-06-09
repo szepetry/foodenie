@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodenie/weather/location.dart';
+import 'package:foodenie/weather/current_location.dart';
 import 'package:foodenie/weather/network.dart';
 import 'package:foodenie/pages/firstpage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -17,7 +17,7 @@ class _LoadingPageState extends State<LoadingPage> {
   double latitude;
   double longitude;
   void getlocationData() async {
-    Location location = new Location();
+    CurrentLocation location = new CurrentLocation();
 
     await location.getCurrentLocation();
 

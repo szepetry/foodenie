@@ -3,6 +3,12 @@ import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/pages/loading.dart';
 import "package:story_view/story_view.dart";
 import 'pages/story_page.dart';
+import 'api_key.dart';
+import 'utilities/places_api.dart';
+
+import "package:google_maps_webservice/places.dart";
+import 'package:workmanager/workmanager.dart';
+
 
 class HomePage extends StatefulWidget {
   final Auth auth;
@@ -12,9 +18,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //   double get deviceWidth => MediaQuery.of(context).size.width;
-  // double get deviceHeight => MediaQuery.of(context).size.height;
-
   final StoryController controller = StoryController();
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
@@ -25,6 +28,15 @@ class _HomePageState extends State<HomePage> {
   /// to get the current location and the data.
   @override
   void initState() {
+    PlacesAPI().getRestaurants();
+    // Workmanager().initialize(getRestaurantsBackgroundService, isInDebugMode: true);
+
+    // Workmanager().registerOneOffTask("1", "Foodenie Background Service");
+
+    // final places = new GoogleMapsPlaces(
+    //   apiKey: googlePlacesAPI,
+    // );
+    // print(places);
     super.initState();
   }
 
@@ -152,19 +164,19 @@ class _HomePageState extends State<HomePage> {
                           //   AssetImage("assets/images/1.jpg"),
                           //   // controller: controller,
                           // ),
-                          StoryItem.inlineImage(
-                            url:
-                                "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
-                            controller: controller,
-                            caption: Text(
-                              "Hektas, sektas and skatad",
-                              style: TextStyle(
-                                color: Colors.white,
-                                backgroundColor: Colors.black54,
-                                fontSize: 17,
-                              ),
-                            ),
-                          )
+                          // StoryItem.inlineImage(
+                          //   url:
+                          //       "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
+                          //   controller: controller,
+                          //   caption: Text(
+                          //     "Hektas, sektas and skatad",
+                          //     style: TextStyle(
+                          //       color: Colors.white,
+                          //       backgroundColor: Colors.black54,
+                          //       fontSize: 17,
+                          //     ),
+                          //   ),
+                          // )
                         ],
 
                         // onStoryShow: (s) {
@@ -193,7 +205,10 @@ class _HomePageState extends State<HomePage> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                Text("Swipe up",style: TextStyle(color: Colors.white),)
+                                Text(
+                                  "Swipe up",
+                                  style: TextStyle(color: Colors.white),
+                                )
                               ],
                             ),
                           ),
