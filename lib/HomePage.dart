@@ -28,7 +28,8 @@ class _HomePageState extends State<HomePage> {
   /// to get the current location and the data.
   @override
   void initState() {
-    PlacesAPI().getRestaurants();
+    // PlacesAPI().getRestaurants();
+
     // Workmanager().initialize(getRestaurantsBackgroundService, isInDebugMode: true);
 
     // Workmanager().registerOneOffTask("1", "Foodenie Background Service");

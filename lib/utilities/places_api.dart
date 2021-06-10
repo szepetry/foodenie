@@ -71,17 +71,33 @@ class PlacesAPI {
       }).then((value) async {
         // print(latitude);
         // print(longitude);
-        // double distanceInMeters = Geolocator.distanceBetween(
-        //     latitude, longitude, lastLocation.latitude, lastLocation.longitude);
-        // print(distanceInMeters);
-        await places
-            .searchNearbyWithRadius(
-                Location(lat: latitude, lng: longitude), 500)
-            .then((value) {
-          print(value.results);
-          print(value.errorMessage);
-          response = value;
-        });
+        double distanceInMeters = Geolocator.distanceBetween(
+            latitude, longitude, lastLocation.latitude, lastLocation.longitude);
+        print(distanceInMeters.toString() + "m");
+        if (distanceInMeters > 0.000000001) {
+          //      PlacesSearchResponse response = await places.searchByText("hospitals",
+          // location: Location(_lat, _lng), radius: 5000, opennow: true);
+          await places
+              .searchNearbyWithRankBy(
+            Location(lat: latitude, lng: longitude), "prominence", 500,
+            type: "restaurant",
+            // language: "en"
+            keyword: "restaurant"
+          )
+              .then((value) {
+            if (value.unknownError == false) {
+              // print(value.results);
+              for (var item in value.results) print(item.name.toString());
+
+              log(value.status.toString(), name: "Status");
+            } else {
+              log(value.errorMessage.toString(), name: "Error message");
+              log(value.status.toString(), name: "Status");
+            }
+
+            response = value;
+          });
+        }
       });
     });
   }
