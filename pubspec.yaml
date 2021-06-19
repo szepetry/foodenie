@@ -47,6 +47,7 @@ dependencies:
   workmanager: ^0.4.1
   google_maps_webservice:
     path: local_packages/google_maps_webservice
+  flutter_local_notifications: ^5.0.0+4
   
 
 

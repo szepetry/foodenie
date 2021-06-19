@@ -2,6 +2,7 @@
     package="com.example.foodenie">
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
    <application
         android:label="foodenie"
         android:icon="@mipmap/ic_launcher">

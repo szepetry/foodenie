@@ -5,10 +5,11 @@ import "package:story_view/story_view.dart";
 import 'pages/story_page.dart';
 import 'api_key.dart';
 import 'utilities/places_api.dart';
+import 'utilities/notifications.dart';
+import 'utilities/images_helper.dart';
 
 import "package:google_maps_webservice/places.dart";
 import 'package:workmanager/workmanager.dart';
-
 
 class HomePage extends StatefulWidget {
   final Auth auth;
@@ -19,6 +20,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final StoryController controller = StoryController();
+  var link;
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
   List<Map<String, dynamic>> popUpMenuItems = [
@@ -29,10 +31,16 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     // PlacesAPI().getRestaurants();
+    // setState(() {
+    //   link = ImagesHelper().getImage("Kheer");
+    // });
 
-    // Workmanager().initialize(getRestaurantsBackgroundService, isInDebugMode: true);
+    // Workmanager()
+    //     .initialize(getRestaurantsBackgroundService, isInDebugMode: true);
+    // Workmanager().cancelAll();
 
     // Workmanager().registerOneOffTask("1", "Foodenie Background Service");
+    // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", "Foodenie Background Service",frequency: Duration(minutes: 15),);
 
     // final places = new GoogleMapsPlaces(
     //   apiKey: googlePlacesAPI,
@@ -52,173 +60,189 @@ class _HomePageState extends State<HomePage> {
       home: SafeArea(
         child: Scaffold(
           body: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(
-                      left: getScreenSize.width * 0.03,
-                      right: getScreenSize.width * 0.03),
-                  width: getScreenSize.width,
-                  height: getScreenSize.height * 0.06,
-                  alignment: Alignment.centerRight,
-                  child: PopupMenuButton(
-                    child: Icon(Icons.menu),
-                    onSelected: (optionDetails) async {
-                      print('LL');
-                      String option = optionDetails['option'];
-                      if (option == 'Signout') {
-                        Auth.signOut();
-                      }
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+                          child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(
+                        left: getScreenSize.width * 0.03,
+                        right: getScreenSize.width * 0.03),
+                    width: getScreenSize.width,
+                    height: getScreenSize.height * 0.06,
+                    alignment: Alignment.centerRight,
+                    child: PopupMenuButton(
+                      child: Icon(Icons.menu),
+                      onSelected: (optionDetails) async {
+                        print('LL');
+                        String option = optionDetails['option'];
+                        if (option == 'Signout') {
+                          Auth.signOut();
+                        }
+                      },
+                      itemBuilder: (context) => List.generate(
+                        popUpMenuItems.length,
+                        (index) => PopupMenuItem<Map<String, dynamic>>(
+                          child: Text(popUpMenuItems[index]['option']),
+                          value: popUpMenuItems[index],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      margin: EdgeInsets.only(top: getScreenSize.height * 0.04),
+                      width: getScreenSize.width * 0.4,
+                      height: getScreenSize.width * 0.4,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            colors: [Colors.blue[200], Colors.blue]),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(200),
+                        ),
+                      ),
+                      child: Text('Hot n cool',
+                          style: TextStyle(color: Colors.white, fontSize: 20)),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 100,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return LoadingPage();
+                      }));
                     },
-                    itemBuilder: (context) => List.generate(
-                      popUpMenuItems.length,
-                      (index) => PopupMenuItem<Map<String, dynamic>>(
-                        child: Text(popUpMenuItems[index]['option']),
-                        value: popUpMenuItems[index],
-                      ),
-                    ),
+                    child: Text('Next Page'),
                   ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    margin: EdgeInsets.only(top: getScreenSize.height * 0.04),
-                    width: getScreenSize.width * 0.4,
-                    height: getScreenSize.width * 0.4,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Colors.blue[200], Colors.blue]),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(200),
-                      ),
-                    ),
-                    child: Text('Hot n cool',
-                        style: TextStyle(color: Colors.white, fontSize: 20)),
-                  ),
-                ),
-                SizedBox(
-                  width: 100,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return LoadingPage();
-                    }));
-                  },
-                  child: Text('Next Page'),
-                ),
-                Container(
-                  height: 300,
-                  padding: EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: [
-                      StoryView(
-                        onVerticalSwipeComplete: (direction) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                // fullscreenDialog: true,
-                                // maintainState: true,
-                                builder: (context) => StoryPage(),
-                              ));
-                        },
-                        repeat: true,
-                        progressPosition: ProgressPosition.top,
-                        controller: controller,
-                        storyItems: [
-                          StoryItem.text(
-                            title:
-                                "Hello world!\nHave a look at some great Ghanaian delicacies. I'm sorry if your mouth waters. \n\nTap!",
-                            backgroundColor: Colors.orange,
-                            roundedTop: true,
-                          ),
-                          StoryItem.inlineImage(
-                            url:
-                                "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
-                            controller: controller,
-                            caption: Text(
-                              "Omotuo & Nkatekwan; You will love this meal if taken as supper.",
-                              style: TextStyle(
-                                color: Colors.white,
-                                backgroundColor: Colors.black54,
-                                fontSize: 17,
+                  Container(
+                    height: 300,
+                    padding: EdgeInsets.all(8.0),
+                    child: Stack(
+                      children: [
+                        StoryView(
+                          onVerticalSwipeComplete: (direction) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  // fullscreenDialog: true,
+                                  // maintainState: true,
+                                  builder: (context) => StoryPage(),
+                                ));
+                          },
+                          repeat: true,
+                          progressPosition: ProgressPosition.top,
+                          controller: controller,
+                          storyItems: [
+                            StoryItem.text(
+                              title:
+                                  "Hello world!\nHave a look at some great Ghanaian delicacies. I'm sorry if your mouth waters. \n\nTap!",
+                              backgroundColor: Colors.orange,
+                              roundedTop: true,
+                            ),
+                            StoryItem.inlineImage(
+                              url:
+                                  "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
+                              controller: controller,
+                              caption: Text(
+                                "Omotuo & Nkatekwan; You will love this meal if taken as supper.",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  backgroundColor: Colors.black54,
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ),
+                            // StoryItem.inlineImage(
+                            //   NetworkImage(
+                            //       "https://image.ibb.co/gCZFbx/Banku-and-tilapia.jpg"),
+                            //   caption: Text(
+                            //     "Banku & Tilapia. The food to keep you charged whole day.\n#1 Local food.",
+                            //     style: TextStyle(
+                            //       color: Colors.white,
+                            //       backgroundColor: Colors.black54,
+                            //       fontSize: 17,
+                            //     ),
+                            //   ),
+                            // ),
+                            // StoryItem.inlineProviderImage(
+                            //   AssetImage("assets/images/1.jpg"),
+                            //   // controller: controller,
+                            // ),
+                            // StoryItem.inlineImage(
+                            //   url:
+                            //       "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
+                            //   controller: controller,
+                            //   caption: Text(
+                            //     "Hektas, sektas and skatad",
+                            //     style: TextStyle(
+                            //       color: Colors.white,
+                            //       backgroundColor: Colors.black54,
+                            //       fontSize: 17,
+                            //     ),
+                            //   ),
+                            // )
+                          ],
+
+                          // onStoryShow: (s) {
+                          //   print("Showing a story");
+                          // },
+                          // onComplete: () {
+                          //   print("Completed a cycle");
+                          // },
+                          // progressPosition: ProgressPosition.bottom,
+                          // repeat: false,
+                          // inline: true,
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SizedBox(
+                            height: 45,
+                            child: Container(
+                              color: Colors.black.withOpacity(0.3),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 20,
+                                    child: Icon(
+                                      Icons.arrow_drop_up,
+                                      size: 32,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Swipe up",
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                ],
                               ),
                             ),
                           ),
-                          // StoryItem.inlineImage(
-                          //   NetworkImage(
-                          //       "https://image.ibb.co/gCZFbx/Banku-and-tilapia.jpg"),
-                          //   caption: Text(
-                          //     "Banku & Tilapia. The food to keep you charged whole day.\n#1 Local food.",
-                          //     style: TextStyle(
-                          //       color: Colors.white,
-                          //       backgroundColor: Colors.black54,
-                          //       fontSize: 17,
-                          //     ),
-                          //   ),
-                          // ),
-                          // StoryItem.inlineProviderImage(
-                          //   AssetImage("assets/images/1.jpg"),
-                          //   // controller: controller,
-                          // ),
-                          // StoryItem.inlineImage(
-                          //   url:
-                          //       "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
-                          //   controller: controller,
-                          //   caption: Text(
-                          //     "Hektas, sektas and skatad",
-                          //     style: TextStyle(
-                          //       color: Colors.white,
-                          //       backgroundColor: Colors.black54,
-                          //       fontSize: 17,
-                          //     ),
-                          //   ),
-                          // )
-                        ],
-
-                        // onStoryShow: (s) {
-                        //   print("Showing a story");
-                        // },
-                        // onComplete: () {
-                        //   print("Completed a cycle");
-                        // },
-                        // progressPosition: ProgressPosition.bottom,
-                        // repeat: false,
-                        // inline: true,
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: SizedBox(
-                          height: 45,
-                          child: Container(
-                            color: Colors.black.withOpacity(0.3),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 20,
-                                  child: Icon(
-                                    Icons.arrow_drop_up,
-                                    size: 32,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "Swipe up",
-                                  style: TextStyle(color: Colors.white),
-                                )
-                              ],
-                            ),
-                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  
+                  // Future builder for building images based on String
+                  FutureBuilder(
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData != true) {
+                        return Text("Loading");
+                      } else {
+                        return Center(
+                            child: Image.network(snapshot.data.toString()));
+                      }
+                    },
+                    future: ImagesHelper().getImage("Kheer"),
+                  )
+                ],
+              ),
             ),
           ),
         ),
