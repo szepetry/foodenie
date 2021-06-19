@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import '../api_key.dart';
 import '../weather/current_location.dart';
 import '../utilities/notifications.dart';
-
+import 'package:foodenie/weather/network.dart';
 import "package:google_maps_webservice/places.dart";
 import 'package:geolocator/geolocator.dart';
 import 'package:workmanager/workmanager.dart';
 import 'dart:developer';
+import 'dart:async';
 
 PlacesSearchResponse response;
 
@@ -116,5 +117,24 @@ class PlacesAPI {
         }
       });
     });
+  }
+
+  Future<dynamic> getWeatherData() async {
+    var completer = new Completer<dynamic>();
+
+    double latitude;
+    double longitude;
+
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((location) async {
+      latitude = location.latitude;
+      longitude = location.longitude;
+      Weather weather = Weather(
+          'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$weatherKey&units=metric');
+      await weather.getData().then((weatherData) {
+        completer.complete(weatherData);
+      });
+    });
+    return completer.future;
   }
 }

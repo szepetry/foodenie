@@ -7,6 +7,7 @@ import 'api_key.dart';
 import 'utilities/places_api.dart';
 import 'utilities/notifications.dart';
 import 'utilities/images_helper.dart';
+import 'utilities/trending_builder.dart';
 
 import "package:google_maps_webservice/places.dart";
 import 'package:workmanager/workmanager.dart';
@@ -24,7 +25,9 @@ class _HomePageState extends State<HomePage> {
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
   List<Map<String, dynamic>> popUpMenuItems = [
-    {"option": "Signout"}
+    {"option": "Signout"},
+    {"option": "Next page"},
+    {"option": "Exit"}
   ];
 
   /// to get the current location and the data.
@@ -60,9 +63,12 @@ class _HomePageState extends State<HomePage> {
       home: SafeArea(
         child: Scaffold(
           body: Container(
+            color: Colors.lime[100],
+            // color: Colors.pink[100],
+            height: getScreenSize.height,
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-                          child: Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -76,10 +82,15 @@ class _HomePageState extends State<HomePage> {
                     child: PopupMenuButton(
                       child: Icon(Icons.menu),
                       onSelected: (optionDetails) async {
-                        print('LL');
+                        // print('LL');
                         String option = optionDetails['option'];
                         if (option == 'Signout') {
                           Auth.signOut();
+                        } else if (option == "Next page") {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return LoadingPage();
+                          }));
                         }
                       },
                       itemBuilder: (context) => List.generate(
@@ -91,114 +102,116 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      margin: EdgeInsets.only(top: getScreenSize.height * 0.04),
-                      width: getScreenSize.width * 0.4,
-                      height: getScreenSize.width * 0.4,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            colors: [Colors.blue[200], Colors.blue]),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(200),
-                        ),
+                  // Weather Widget
+                  Container(
+                    // margin: EdgeInsets.only(top: getScreenSize.height * 0.04),
+                    width: getScreenSize.width * 0.4,
+                    height: getScreenSize.width * 0.4,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.purple[900],
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(200),
                       ),
-                      child: Text('Hot n cool',
-                          style: TextStyle(color: Colors.white, fontSize: 20)),
                     ),
+                    child: FutureBuilder(
+                        future: PlacesAPI().getWeatherData(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(child: CircularProgressIndicator());
+                          } else {
+                            return Column(
+                              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 30.0),
+                                  child: Text(
+                                    "${double.parse(snapshot.data['main']['temp'].toString()).round().toString()}°C",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 40),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                          "${snapshot.data['weather'][0]['main'].toString()}",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15)),
+                                      Text("Lunch",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15)),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            );
+                          }
+                        }),
                   ),
                   SizedBox(
                     width: 100,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return LoadingPage();
-                      }));
-                    },
-                    child: Text('Next Page'),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, left: 30),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Food Recommendations",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                decoration: TextDecoration.overline,
+                                decorationThickness: 3,
+                                fontWeight: FontWeight.w200))),
                   ),
                   Container(
-                    height: 300,
+                    height: 230,
+                    width: getScreenSize.width * 0.9,
                     padding: EdgeInsets.all(8.0),
                     child: Stack(
                       children: [
-                        StoryView(
-                          onVerticalSwipeComplete: (direction) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  // fullscreenDialog: true,
-                                  // maintainState: true,
-                                  builder: (context) => StoryPage(),
-                                ));
-                          },
-                          repeat: true,
-                          progressPosition: ProgressPosition.top,
-                          controller: controller,
-                          storyItems: [
-                            StoryItem.text(
-                              title:
-                                  "Hello world!\nHave a look at some great Ghanaian delicacies. I'm sorry if your mouth waters. \n\nTap!",
-                              backgroundColor: Colors.orange,
-                              roundedTop: true,
-                            ),
-                            StoryItem.inlineImage(
-                              url:
-                                  "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
-                              controller: controller,
-                              caption: Text(
-                                "Omotuo & Nkatekwan; You will love this meal if taken as supper.",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  backgroundColor: Colors.black54,
-                                  fontSize: 17,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: StoryView(
+                            onVerticalSwipeComplete: (direction) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => StoryPage(),
+                                  ));
+                            },
+                            repeat: true,
+                            progressPosition: ProgressPosition.top,
+                            controller: controller,
+                            storyItems: [
+                              StoryItem.text(
+                                title:
+                                    "Hello world!\nHave a look at some great Ghanaian delicacies. I'm sorry if your mouth waters. \n\nTap!",
+                                backgroundColor: Colors.orange,
+                                roundedTop: true,
+                              ),
+                              StoryItem.inlineImage(
+                                url:
+                                    "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
+                                controller: controller,
+                                caption: Text(
+                                  "Omotuo & Nkatekwan",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    backgroundColor: Colors.black54,
+                                    fontSize: 17,
+                                  ),
                                 ),
                               ),
-                            ),
-                            // StoryItem.inlineImage(
-                            //   NetworkImage(
-                            //       "https://image.ibb.co/gCZFbx/Banku-and-tilapia.jpg"),
-                            //   caption: Text(
-                            //     "Banku & Tilapia. The food to keep you charged whole day.\n#1 Local food.",
-                            //     style: TextStyle(
-                            //       color: Colors.white,
-                            //       backgroundColor: Colors.black54,
-                            //       fontSize: 17,
-                            //     ),
-                            //   ),
-                            // ),
-                            // StoryItem.inlineProviderImage(
-                            //   AssetImage("assets/images/1.jpg"),
-                            //   // controller: controller,
-                            // ),
-                            // StoryItem.inlineImage(
-                            //   url:
-                            //       "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
-                            //   controller: controller,
-                            //   caption: Text(
-                            //     "Hektas, sektas and skatad",
-                            //     style: TextStyle(
-                            //       color: Colors.white,
-                            //       backgroundColor: Colors.black54,
-                            //       fontSize: 17,
-                            //     ),
-                            //   ),
-                            // )
-                          ],
-
-                          // onStoryShow: (s) {
-                          //   print("Showing a story");
-                          // },
-                          // onComplete: () {
-                          //   print("Completed a cycle");
-                          // },
-                          // progressPosition: ProgressPosition.bottom,
-                          // repeat: false,
-                          // inline: true,
+                            ],
+                          ),
                         ),
                         Align(
                           alignment: Alignment.bottomCenter,
@@ -228,19 +241,60 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  
-                  // Future builder for building images based on String
-                  FutureBuilder(
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData != true) {
-                        return Text("Loading");
-                      } else {
-                        return Center(
-                            child: Image.network(snapshot.data.toString()));
-                      }
-                    },
-                    future: ImagesHelper().getImage("Kheer"),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, left: 30),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Trending",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                decoration: TextDecoration.overline,
+                                decorationThickness: 3,
+                                fontWeight: FontWeight.w200))),
+                  ),
+                  Row(
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TrendingBuilder(
+                        asset: "assets/images/jalebi.jpg",
+                        number: "1",
+                      ),
+                      TrendingBuilder(
+                        asset: "assets/images/jalebi.jpg",
+                        number: "2",
+                      )
+                    ],
+                  ),
+                  Row(
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TrendingBuilder(
+                        asset: "assets/images/jalebi.jpg",
+                        number: "3",
+                      ),
+                      TrendingBuilder(
+                        asset: "assets/images/jalebi.jpg",
+                        number: "4",
+                      )
+                    ],
                   )
+
+                  // Future builder for building images based on String
+                  // FutureBuilder(
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.hasData != true) {
+                  //       return Text("Loading");
+                  //     } else {
+                  //       return Center(
+                  //           child: Image.network(snapshot.data.toString()));
+                  //     }
+                  //   },
+                  //   future: ImagesHelper().getImage("Kheer"),
+                  // )
                 ],
               ),
             ),

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import '../api_key.dart';
 
 import 'package:http/http.dart' as http;
@@ -15,7 +14,6 @@ List<dynamic> imgResult = [];
 class ImagesHelper {
   Future<String> getImage(String query) async {
     var completer = new Completer<String>();
-    String val;
 
     await http.get(
         Uri.parse(

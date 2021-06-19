@@ -27,13 +27,14 @@ class _LoadingPageState extends State<LoadingPage> {
     Weather weather = Weather(
         'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey&units=metric');
 
-    var weatherData = await weather.getData();
-
-    Navigator.push(context, MaterialPageRoute(builder: (context){
-      return FirstPage(
-        weatherLocation: weatherData,
-      );
-    }));
+    await weather.getData().then((weatherData) {
+      print(weatherData.runtimeType.toString());
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return FirstPage(
+          weatherLocation: weatherData,
+        );
+      }));
+    });
   }
 
   @override
@@ -56,7 +57,6 @@ class _LoadingPageState extends State<LoadingPage> {
         child: SpinKitFadingCircle(
           color: Colors.black,
           size: 60,
-
         ),
       ),
     );

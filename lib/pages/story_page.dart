@@ -186,13 +186,7 @@ class _StoryPageState extends State<StoryPage> {
             children: [
               StoryView(
                 onVerticalSwipeComplete: (direction) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        // fullscreenDialog: true,
-                        // maintainState: true,
-                        builder: (context) => StoryPage(),
-                      ));
+                  print("Swipe up");
                 },
                 repeat: false,
                 progressPosition: ProgressPosition.top,
