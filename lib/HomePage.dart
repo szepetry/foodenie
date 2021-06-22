@@ -30,6 +30,9 @@ class _HomePageState extends State<HomePage> {
   var link;
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
+
+  String mealTime = "";
+
   List<Map<String, dynamic>> popUpMenuItems = [
     {"option": "Signout"},
     {"option": "Next page"},
@@ -40,7 +43,8 @@ class _HomePageState extends State<HomePage> {
   /// to get the current location and the data.
   @override
   void initState() {
-    checkTimings();
+    // checkTimings();
+    checkMealTime();
     // PlacesAPI().getRestaurants();
     // setState(() {
     //   link = ImagesHelper().getImage("Kheer");
@@ -60,7 +64,28 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-    checkTimings() async {
+  checkMealTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    TimeOfDay breakfast = TimeOfDay(
+        hour: prefs.getInt("breakfastHour"),
+        minute: prefs.getInt("breakfastMinute"));
+    TimeOfDay lunch = TimeOfDay(
+        hour: prefs.getInt("lunchHour"), minute: prefs.getInt("lunchMinute"));
+    TimeOfDay dinner = TimeOfDay(
+        hour: prefs.getInt("dinnerHour"), minute: prefs.getInt("dinnerMinute"));
+
+    TimeOfDay timeNow = TimeOfDay.now();
+
+    if (breakfast.hour <= timeNow.hour && timeNow.hour < lunch.hour) {
+      setState(() => mealTime = "Breakfast");
+    } else if (lunch.hour <= timeNow.hour && timeNow.hour < dinner.hour) {
+      setState(() => mealTime = "Lunch");
+    } else {
+      setState(() => mealTime = "Dinner");
+    }
+  }
+
+  checkTimings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     log(prefs.getInt("breakfastHour").toString(), name: "breakfastHour");
     log(prefs.getInt("breakfastMinute").toString(), name: "breakfastMinute");
@@ -77,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.lime,
       ),
-          child: MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             primarySwatch: Colors.blue,
@@ -115,11 +140,12 @@ class _HomePageState extends State<HomePage> {
                                 MaterialPageRoute(builder: (context) {
                               return LoadingPage();
                             }));
-                          }
-                          else if(option == "Meal timings"){
+                          } else if (option == "Meal timings") {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return MealTimings(recall: true,);
+                              return MealTimings(
+                                recall: true,
+                              );
                             }));
                           }
                         },
@@ -172,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15)),
-                                        Text("Lunch",
+                                        Text(mealTime,
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15)),
