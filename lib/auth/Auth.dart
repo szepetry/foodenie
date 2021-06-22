@@ -4,10 +4,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class Auth {
   String uid;
+  static String acToken;
   Auth(this.uid);
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static GoogleSignInAccount googleUser;
-  static Future<UserCredential> signInWithGoogle() async {
+  static Future<Map<String, dynamic>> signInWithGoogle() async {
     googleUser = await GoogleSignIn().signIn();
 
     final GoogleSignInAuthentication googleAuth =
@@ -18,7 +19,9 @@ class Auth {
       idToken: googleAuth.idToken,
     );
 
-    return _auth.signInWithCredential(credential);
+    acToken = credential.idToken;
+    UserCredential u = await _auth.signInWithCredential(credential);
+    return {"cred": u, "token": acToken};
   }
 
   static void signOut() {

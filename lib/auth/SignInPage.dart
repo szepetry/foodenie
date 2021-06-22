@@ -1,8 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodenie/auth/Auth.dart';
+import 'package:foodenie/initFoods.dart';
+import 'package:foodenie/reccommender.dart';
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
 
 class SignInPage extends StatefulWidget {
   SignInPage();
@@ -12,6 +20,30 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   bool signInStart = false;
+  var foodIds;
+  ReceivePort _port = ReceivePort();
+
+  @override
+  void initState() {
+    super.initState();
+
+/*     FlutterDownloader.initialize().then((value) {
+      FlutterDownloader.registerCallback(downloadCallback);
+    });
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      if (status == DownloadTaskStatus.complete) {
+        final directory = getApplicationDocumentsDirectory().then((value) {
+          File f = File(value.path + '/foodeine_tflite_model.tflite');
+        });
+      } else {}
+    }); */
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -67,27 +99,35 @@ class _SignInPageState extends State<SignInPage> {
                                 side: MaterialStateProperty.all<BorderSide>(
                                     BorderSide(color: Colors.white))),
                             onPressed: () async {
+                              //await getRequest('recommend?foodId=60');
                               setState(() {
                                 signInStart = true;
                               });
-                              UserCredential cred;
+                              Map<String, dynamic> cred;
                               try {
                                 cred = await Auth.signInWithGoogle();
-                                User user = cred.user;
+                                User user = cred['cred'].user;
                                 String uid = user.uid;
-                                AppUser appUser = AppUser(user.displayName,
-                                    user.phoneNumber, user.email);
-
-                                setState(() {
-                                  signInStart = false;
-                                });
-                                FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(uid)
-                                    .set(
-                                      appUser.userDetails,
-                                      SetOptions(merge: true),
-                                    );
+                                if (uid.length > 0) {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => InitFoods()));
+                                  AppUser appUser = AppUser(user.displayName,
+                                      user.phoneNumber, user.email);
+                                  token = cred['token'];
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((timeStamp) {
+                                    setState(() {
+                                      signInStart = false;
+                                    });
+                                  });
+                                  FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(uid)
+                                      .set(
+                                        appUser.userDetails,
+                                        SetOptions(merge: true),
+                                      );
+                                }
                               } catch (e) {
                                 print(e);
                                 if (cred == null) {
@@ -97,8 +137,12 @@ class _SignInPageState extends State<SignInPage> {
                                     ),
                                   );
                                 }
-                                setState(() {
-                                  signInStart = false;
+
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((timeStamp) {
+                                  setState(() {
+                                    signInStart = false;
+                                  });
                                 });
                               }
                             },

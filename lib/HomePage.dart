@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodenie/auth/Auth.dart';
+import 'package:foodenie/initFoods.dart';
+import 'reccommender.dart';
 
 class HomePage extends StatefulWidget {
   final Auth auth;
@@ -14,6 +18,13 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> popUpMenuItems = [
     {"option": "Signout"}
   ];
+  //var foodIds;
+
+  @override
+  void initState() {
+    //FirebaseFirestore.instance.collection("food_items").get().then((value) => foodIds=value);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +80,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Text('Hot n cool',
                       style: TextStyle(color: Colors.white, fontSize: 20)),
-                )
+                ),
+                TextButton(
+                    onPressed: () async {
+                      /* String token = await FirebaseAuth.instance.currentUser
+                          .getIdToken(true); */
+                      // await getRequest('recommend?foodId=60');
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => InitFoods()));
+                    },
+                    child: Text('tst'))
               ],
             ),
           ),
