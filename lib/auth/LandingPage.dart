@@ -6,6 +6,8 @@ import 'package:foodenie/auth/SignInPage.dart';
 import 'package:foodenie/initFoods.dart';
 import 'package:provider/provider.dart';
 
+import '../initPage.dart';
+
 class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,7 @@ class LandingPage extends StatelessWidget {
           if (snapshot.hasData) {
             String uid = snapshot.data.uid;
             Auth auth = Auth(uid);
-            return HomePage(auth);
+            return InitPage(auth);
           }
           return SignInPage();
         });

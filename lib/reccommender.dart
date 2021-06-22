@@ -6,6 +6,7 @@ import 'dart:convert';
 
 String baseUrl = 'https://us-central1-foodenie.cloudfunctions.net/app/';
 String token;
+String FbUid;
 Future<Map<String, dynamic>> getRequest(String endPoint) async {
   Map<String, dynamic> result;
 
