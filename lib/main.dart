@@ -1,8 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:foodenie/auth/LandingPage.dart';
 
 void main() {
+  // Status bar color
+//   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+//   statusBarColor: Colors.lime
+// ));
   runApp(MyApp());
 }
 
@@ -12,9 +17,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.purple,
+          // primaryColor: Colors.purple[900],
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          fontFamily: 'Alata'),
+          fontFamily: 'Alata',
+          timePickerTheme: TimePickerThemeData(
+              backgroundColor: Colors.lime[50],
+              // hourMinuteTextColor: Colors.purple[900]
+              dayPeriodTextColor: Colors.purple[900],
+              dialHandColor: Colors.purple[900])),
       home: Scaffold(
         body: FutureBuilder<FirebaseApp>(
             future: Firebase.initializeApp(),

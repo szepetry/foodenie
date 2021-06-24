@@ -11,6 +11,7 @@ import 'package:foodenie/reccommender.dart';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInPage extends StatefulWidget {
   SignInPage();
@@ -21,10 +22,17 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   bool signInStart = false;
   var foodIds;
+  bool isLoading = true;
   ReceivePort _port = ReceivePort();
+  SharedPreferences prefs;
 
   @override
   void initState() {
+    if (!isLoading)
+      setState(() {
+        isLoading = true;
+      });
+
     super.initState();
 
 /*     FlutterDownloader.initialize().then((value) {
@@ -106,27 +114,25 @@ class _SignInPageState extends State<SignInPage> {
                               Map<String, dynamic> cred;
                               try {
                                 cred = await Auth.signInWithGoogle();
-                                User user = cred['cred'].user;
-                                String uid = user.uid;
+                                User fbUser = cred['cred'].user;
+                                String uid = fbUser.uid;
+
                                 if (uid.length > 0) {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => InitFoods()));
-                                  AppUser appUser = AppUser(user.displayName,
-                                      user.phoneNumber, user.email);
-                                  token = cred['token'];
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((timeStamp) {
-                                    setState(() {
-                                      signInStart = false;
-                                    });
-                                  });
-                                  FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(uid)
-                                      .set(
-                                        appUser.userDetails,
-                                        SetOptions(merge: true),
-                                      );
+                                  AppUser appUser = AppUser(fbUser.displayName,
+                                      fbUser.phoneNumber, fbUser.email);
+
+                                  var userDoc =
+                                      await user.doc(fbUser.uid).get();
+
+                                  if (!userDoc.exists) {
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(uid)
+                                        .set(
+                                          appUser.userDetails,
+                                          SetOptions(merge: true),
+                                        );
+                                  }
                                 }
                               } catch (e) {
                                 print(e);
@@ -137,12 +143,8 @@ class _SignInPageState extends State<SignInPage> {
                                     ),
                                   );
                                 }
-
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((timeStamp) {
-                                  setState(() {
-                                    signInStart = false;
-                                  });
+                                setState(() {
+                                  signInStart = false;
                                 });
                               }
                             },

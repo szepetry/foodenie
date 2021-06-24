@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'reccommender.dart';
 
 class InitFoods extends StatefulWidget {
-  const InitFoods();
+  var scrollCallback;
+  InitFoods(this.scrollCallback);
 
   @override
   _InitFoodsState createState() => _InitFoodsState();
@@ -50,42 +51,16 @@ class _InitFoodsState extends State<InitFoods> {
     super.initState();
   }
 
-  List<String> vegFoods = <String>[
-    'https://media.easemytrip.com/media/Blog/India/636977607425696252/636977607425696252QYiiUU.jpg',
-    'https://pbs.twimg.com/media/ETsKy9VVAAAm21Q.jpg',
-    'https://www.hungryforever.com/wp-content/uploads/2015/03/Featured-image-vegetarian-restaurants-in-bangalore.jpg',
-    'http://www.dineout.co.in/blog/wp-content/uploads/2019/08/sun-planet.jpg',
-    'https://www.golokaso.com/wp-content/uploads/2018/05/veg-food-cover.jpg',
-    'https://i.ytimg.com/vi/Q7PK8Wy8Sgk/maxresdefault.jpg',
-    'https://qph.fs.quoracdn.net/main-qimg-678706e348c1e929cece3e5a259e7638',
-    'https://img.taste.com.au/qwRsc_iL/w720-h480-cfill-q80/taste/2018/06/july-18_indian-style-potatoes-138753-1.jpg',
-    'https://curlytales.com/wp-content/uploads/2017/08/veg_food-e1502966998573-1280x720.jpg',
-    'https://goa-casitas.com/wp-content/uploads/2019/09/Jalsa.jpg'
-  ];
-  List<String> nonVegFoods = <String>[
-    'https://zarpar.in/wp-content/uploads/2018/05/Non-Veg-Food.jpg',
-    'https://english.cdn.zeenews.com/sites/default/files/styles/zm_700x400/public/2017/12/28/650592-non-veg-food-pti.jpg',
-    'https://www.keralataxis.com/wp-content/uploads/2016/05/pearlspot_fry.jpg',
-    'https://beautyhealthtips.in/wp-content/uploads/2018/03/Best-non-veg-food.jpg',
-    'https://i.ndtvimg.com/i/2017-11/winter-dish_620x350_41510574200.jpg',
-    'https://www.shoutlo.com/uploads/articles/header-img-non-vegetarian-dishes-in-ludhiana.jpg',
-    'https://beautyhealthtips.in/wp-content/uploads/2016/06/Advantages-and-disadvantages-of-non-veg-food.jpg',
-  ];
-
-  List<String> snacks = <String>[
-    'https://cdn-a.william-reed.com/var/wrbm_gb_food_pharma/storage/images/publications/food-beverage-nutrition/bakeryandsnacks.com/article/2019/01/23/protein-still-reigns-as-top-trend-in-healthy-snacks/9059533-1-eng-GB/Protein-still-reigns-as-top-trend-in-healthy-snacks_wrbm_large.jpg',
-    'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/high-protein-snack-ideas-1616101260.png?crop=0.393xw:0.785xh;0.00641xw,0&resize=640:*',
-    'https://www.healthifyme.com/blog/wp-content/uploads/2020/02/IS-1.jpg',
-    'https://us.123rf.com/450wm/jirkaejc/jirkaejc1003/jirkaejc100300206/6629772-the-photo-shot-of-the-salty-snacks.jpg?ver=6',
-    'https://hips.hearstapps.com/hmg-prod/images/delish-how-to-make-a-smoothie-horizontal-1542310071.png',
-    'https://bakerbynature.com/wp-content/uploads/2011/05/Tropical-Smoothie-1234567-1-of-1.jpg'
-  ];
+  
 
   String getLink([String course]) {
     Random rand = new Random();
-    if (course == 'Snack' || course == 'Dessert') {
-      int idx = rand.nextInt(snacks.length);
-      return snacks[idx];
+    if (course != null) {
+      if (course.toLowerCase().contains('snack') ||
+          course.toLowerCase().contains('dessert')) {
+        int idx = rand.nextInt(snacks.length);
+        return snacks[idx];
+      }
     }
     if (isVeg) {
       int idx = rand.nextInt(vegFoods.length);
@@ -109,7 +84,7 @@ class _InitFoodsState extends State<InitFoods> {
           });
           if (temp.isEmpty) {
             e['selected'] = false;
-            e['link'] = getLink();
+            e['link'] = getLink(e['course']);
             foods.add(e);
             i++;
           }
@@ -164,10 +139,11 @@ class _InitFoodsState extends State<InitFoods> {
                   await updateRank(element['food_ID']);
                 }
               });
+              await user.doc(fbUid).update({'isSetupDone': true});
               setState(() {
                 isButtonLoading = false;
               });
-              Navigator.of(context).pop();
+              widget.scrollCallback();
             },
           ),
           body: Container(
