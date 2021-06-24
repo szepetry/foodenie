@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:foodenie/reccommender.dart';
 
 import "package:story_view/story_view.dart";
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../utilities/constants.dart';
 
 class StoryPage extends StatefulWidget {
-  const StoryPage({Key key}) : super(key: key);
+  Map<String, dynamic> foodItem;
+  StoryPage(this.foodItem);
 
   @override
   _StoryPageState createState() => _StoryPageState();
@@ -14,18 +16,23 @@ class StoryPage extends StatefulWidget {
 class _StoryPageState extends State<StoryPage> {
   double get deviceHeight => MediaQuery.of(context).size.height;
   double get deviceWidth => MediaQuery.of(context).size.width;
-
-  TextEditingController dietController = TextEditingController();
-  TextEditingController courseController = TextEditingController();
-  TextEditingController pctimeController = TextEditingController();
-  TextEditingController categoryController = TextEditingController();
-  TextEditingController cuisineController = TextEditingController();
-
+  double rating;
   List<StoryItem> storyItemList = [];
 
   final StoryController controller = StoryController();
 
-  StoryItem storyItemBuilder(Duration duration) {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  StoryItem storyItemBuilder(Duration duration, dynamic foodItem) {
     return StoryItem(
       Container(
         color: Colors.lime[100],
@@ -46,9 +53,7 @@ class _StoryPageState extends State<StoryPage> {
                       image: DecorationImage(
                           alignment: Alignment.topCenter,
                           fit: BoxFit.cover,
-                          image: AssetImage(
-                            "assets/images/Kheer.jpg",
-                          ))),
+                          image: NetworkImage(foodItem['link']))),
                 ),
               ),
             ),
@@ -68,7 +73,7 @@ class _StoryPageState extends State<StoryPage> {
                             Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Kheer",
+                                  foodItem['recipe_title'],
                                   style: TextStyle(
                                       fontSize: 25,
                                       decoration: TextDecoration.overline,
@@ -81,9 +86,9 @@ class _StoryPageState extends State<StoryPage> {
                                   const EdgeInsets.only(right: 20.0, top: 8),
                               child: SizedBox(
                                 height: 50,
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: foodItem['diet'],
                                   showCursor: false,
-                                  controller: dietController,
                                   enabled: false,
                                   decoration: InputDecoration(
                                       disabledBorder: OutlineInputBorder(
@@ -104,9 +109,9 @@ class _StoryPageState extends State<StoryPage> {
                                   const EdgeInsets.only(right: 20.0, top: 8),
                               child: SizedBox(
                                 height: 50,
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: foodItem['course'],
                                   showCursor: false,
-                                  controller: courseController,
                                   enabled: false,
                                   decoration: InputDecoration(
                                       disabledBorder: OutlineInputBorder(
@@ -127,9 +132,9 @@ class _StoryPageState extends State<StoryPage> {
                                   const EdgeInsets.only(right: 20.0, top: 8),
                               child: SizedBox(
                                 height: 50,
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: '30 + 30 mins',
                                   showCursor: false,
-                                  controller: pctimeController,
                                   enabled: false,
                                   decoration: InputDecoration(
                                       disabledBorder: OutlineInputBorder(
@@ -150,9 +155,9 @@ class _StoryPageState extends State<StoryPage> {
                                   const EdgeInsets.only(right: 20.0, top: 8),
                               child: SizedBox(
                                 height: 50,
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: foodItem['category'],
                                   showCursor: false,
-                                  controller: categoryController,
                                   enabled: false,
                                   decoration: InputDecoration(
                                       disabledBorder: OutlineInputBorder(
@@ -173,9 +178,9 @@ class _StoryPageState extends State<StoryPage> {
                                   const EdgeInsets.only(right: 20.0, top: 8),
                               child: SizedBox(
                                 height: 50,
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: foodItem['cuisine'],
                                   showCursor: false,
-                                  controller: cuisineController,
                                   enabled: false,
                                   decoration: InputDecoration(
                                       disabledBorder: OutlineInputBorder(
@@ -254,11 +259,13 @@ class _StoryPageState extends State<StoryPage> {
                                       color: Colors.purple[900],
                                     );
                                     break;
+                                  default:
+                                    return Container();
                                 }
                               },
 
                               onRatingUpdate: (rating) {
-                                print(rating);
+                                this.rating = rating;
                               },
                             ),
                           ),
@@ -278,56 +285,65 @@ class _StoryPageState extends State<StoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    dietController.text = "Vegetarian";
+    /*   dietController.text = "Vegetarian";
     courseController.text = "Dessert";
     pctimeController.text = "30 + 30 mins";
     categoryController.text = "Sweet";
-    cuisineController.text = "Indian";
+    cuisineController.text = "Indian"; */
     return SafeArea(
       child: Material(
-          child: Stack(
-        children: [
-          Stack(
-            children: [
-              StoryView(
-                onVerticalSwipeComplete: (direction) {
-                  print("Swipe up");
-                },
-                repeat: false,
-                progressPosition: ProgressPosition.top,
-                controller: controller,
-                storyItems: [
-                  storyItemBuilder(Duration(seconds: 3)),
-                ],
-              ),
-              // Align(
-              //   alignment: Alignment.bottomCenter,
-              //   child: SizedBox(
-              //     height: 45,
-              //     child: Container(
-              //       color: Colors.black.withOpacity(0.3),
-              //       child: Column(
-              //         children: [
-              //           SizedBox(
-              //             height: 20,
-              //             child: Icon(
-              //               Icons.arrow_drop_up,
-              //               size: 32,
-              //               color: Colors.white,
-              //             ),
-              //           ),
-              //           Text(
-              //             "Swipe up",
-              //             style: TextStyle(color: Colors.white),
-              //           )
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
-        ],
+          child: WillPopScope(
+        onWillPop: () {
+          if (rating != null) {
+            updateRank(widget.foodItem['food_ID'], rating)
+                .then((value) => null);
+          }
+          return Future.value(true);
+        },
+        child: Stack(
+          children: [
+            Stack(
+              children: [
+                StoryView(
+                  onVerticalSwipeComplete: (direction) {
+                    print("Swipe up");
+                  },
+                  repeat: false,
+                  progressPosition: ProgressPosition.top,
+                  controller: controller,
+                  storyItems: [
+                    storyItemBuilder(Duration(seconds: 3), widget.foodItem)
+                  ],
+                ),
+                // Align(
+                //   alignment: Alignment.bottomCenter,
+                //   child: SizedBox(
+                //     height: 45,
+                //     child: Container(
+                //       color: Colors.black.withOpacity(0.3),
+                //       child: Column(
+                //         children: [
+                //           SizedBox(
+                //             height: 20,
+                //             child: Icon(
+                //               Icons.arrow_drop_up,
+                //               size: 32,
+                //               color: Colors.white,
+                //             ),
+                //           ),
+                //           Text(
+                //             "Swipe up",
+                //             style: TextStyle(color: Colors.white),
+                //           )
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+          ],
+        ),
       )),
     );
   }

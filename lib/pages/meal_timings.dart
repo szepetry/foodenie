@@ -5,7 +5,9 @@ import 'dart:developer';
 
 class MealTimings extends StatefulWidget {
   final bool recall;
-  const MealTimings({Key key, this.recall = false}) : super(key: key);
+  final scrollCallback;
+  const MealTimings(this.scrollCallback, {Key key, this.recall = false})
+      : super(key: key);
 
   @override
   _MealTimingsState createState() => _MealTimingsState();
@@ -186,11 +188,12 @@ class _MealTimingsState extends State<MealTimings> {
                   alignment: Alignment.bottomRight,
                   child: TextButton(
                       onPressed: () {
-                        _saveTimings().then((val) {
+                        _saveTimings().then((val) async {
                           print("Saved timings");
-                          if (recall == true) {
+                          if (recall == true)
                             Navigator.pop(context);
-                          }
+                          else
+                            await widget.scrollCallback();
                         });
                       },
                       child: Text(

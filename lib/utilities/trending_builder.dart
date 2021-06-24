@@ -1,50 +1,78 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:foodenie/pages/story_page.dart';
+
 class TrendingBuilder extends StatelessWidget {
   final String number;
-  final String asset;
-
-  const TrendingBuilder({Key key, @required this.asset, @required this.number})
+  final Map<String, dynamic> foodItem;
+  //can add name of food item as well if reqd - foodItem['recipe_title'] - string
+  const TrendingBuilder(
+      {Key key, @required this.foodItem, @required this.number})
       : super(key: key);
+
+  Widget progressBuilder(String url) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Center(
+          child: SizedBox(
+            width: 50,
+            height: 50,
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes
+                  : null,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            // alignment: AlignmentDirectional.center,
-            // fit: StackFit.expand,
-            children: [
-              Container(
-                height: 100,
-                width: 170,
-                child: Image.asset(
-                  asset,
-                  fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => StoryPage(foodItem)));
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              // alignment: AlignmentDirectional.center,
+              // fit: StackFit.expand,
+              children: [
+                Container(
+                  height: 100,
+                  width: 170,
+                  child: progressBuilder(foodItem['link']),
                 ),
-              ),
-              Positioned(
-                top: 100,
-                right: 60,
-                child: TriangleBuilder(
-                  color: Colors.green[800],
+                Positioned(
+                  top: 100,
+                  right: 60,
+                  child: TriangleBuilder(
+                    color: Colors.green[800],
+                  ),
                 ),
-              ),
-              Positioned(
-                // bottom: 60,
-                top: 60,
-                right: 10,
-                child: Text(
-                  number,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(fontSize: 25, color: Colors.white),
+                Positioned(
+                  // bottom: 60,
+                  top: 60,
+                  right: 10,
+                  child: Text(
+                    number,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 25, color: Colors.white),
+                  ),
                 ),
-              ),
-            ],
-          )),
+              ],
+            )),
+      ),
     );
   }
 }

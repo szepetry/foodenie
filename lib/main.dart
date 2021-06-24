@@ -22,12 +22,10 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
           fontFamily: 'Alata',
           timePickerTheme: TimePickerThemeData(
-            backgroundColor: Colors.lime[50],
-            // hourMinuteTextColor: Colors.purple[900]
-            dayPeriodTextColor: Colors.purple[900],
-            dialHandColor: Colors.purple[900]
-          )
-          ),
+              backgroundColor: Colors.lime[50],
+              // hourMinuteTextColor: Colors.purple[900]
+              dayPeriodTextColor: Colors.purple[900],
+              dialHandColor: Colors.purple[900])),
       home: Scaffold(
         body: FutureBuilder<FirebaseApp>(
             future: Firebase.initializeApp(),

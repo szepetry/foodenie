@@ -8,6 +8,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 const apiKey = "49470311c443d67979763092262f5e36";
 
 class LoadingPage extends StatefulWidget {
+  var scrollCallback;
+  LoadingPage(this.scrollCallback);
   @override
   _LoadingPageState createState() => _LoadingPageState();
 }
@@ -27,13 +29,14 @@ class _LoadingPageState extends State<LoadingPage> {
     Weather weather = Weather(
         'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey&units=metric');
 
-    await weather.getData().then((weatherData) {
+    await weather.getData().then((weatherData) async {
       print(weatherData.runtimeType.toString());
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
+      await Navigator.push(context, MaterialPageRoute(builder: (context) {
         return FirstPage(
           weatherLocation: weatherData,
         );
       }));
+      widget.scrollCallback();
     });
   }
 
