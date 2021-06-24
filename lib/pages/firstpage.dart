@@ -46,7 +46,7 @@ class _FirstPageState extends State<FirstPage> {
   void updateUi(dynamic weatherData) {
     var temp = weatherData['main']['temp'];
     temperature = temp.toInt();
-    weatherDescription = weatherData['weather'][0]['description'];
+    weatherDescription = weatherData['weather'][0]['main'];
     cityName = weatherData['name'];
     print(temperature);
   }

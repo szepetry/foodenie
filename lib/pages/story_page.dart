@@ -15,162 +15,250 @@ class _StoryPageState extends State<StoryPage> {
   double get deviceHeight => MediaQuery.of(context).size.height;
   double get deviceWidth => MediaQuery.of(context).size.width;
 
+  TextEditingController dietController = TextEditingController();
+  TextEditingController courseController = TextEditingController();
+  TextEditingController pctimeController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController cuisineController = TextEditingController();
+
   List<StoryItem> storyItemList = [];
 
   final StoryController controller = StoryController();
 
   StoryItem storyItemBuilder(Duration duration) {
     return StoryItem(
-      Stack(
-        children: [
-          Container(
-            height: deviceHeight,
-            child: Image.asset(
-              "assets/images/jalebi.jpg",
-              fit: BoxFit.cover,
+      Container(
+        color: Colors.lime[100],
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              color: Colors.lime,
             ),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 50.0, left: 8.0),
-              child: SizedBox(
-                height: 350,
-                width: 70,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20)),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 1, right: 1),
+              child: Container(
+                height: deviceHeight * 0.40,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    image: DecorationImage(
+                        alignment: Alignment.topCenter,
+                        fit: BoxFit.cover,
+                        image: AssetImage(
+                          "assets/images/Kheer.jpg",
+                        ))),
+              ),
+            ),
+            Positioned(
+              top: deviceHeight * 0.40 + 40,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: deviceHeight - deviceHeight * 0.40 - 40,
+                  width: deviceWidth,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Vegen",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Kheer",
+                            style: TextStyle(
+                                fontSize: 25,
+                                decoration: TextDecoration.overline,
+                                decorationThickness: 2,
+                                fontWeight: FontWeight.w400),
+                          )),
+                      // Diet
+                      Padding(
+                        padding: const EdgeInsets.only(right: 60.0, top: 8),
+                        child: SizedBox(
+                          height: 50,
+                          child: TextField(
+                            showCursor: false,
+                            controller: dietController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                                disabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.purple[900])),
+                                // hintText: "Breakfast",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelText: "Diet",
+                                labelStyle: TextStyle(
+                                    fontSize: 20, color: Colors.black54)),
+                          ),
+                        ),
                       ),
-                      Divider(
-                        thickness: 1,
-                        indent: 5,
-                        endIndent: 5,
+                      // Course
+                      Padding(
+                        padding: const EdgeInsets.only(right: 60.0, top: 8),
+                        child: SizedBox(
+                          height: 50,
+                          child: TextField(
+                            showCursor: false,
+                            controller: courseController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                                disabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.purple[900])),
+                                // hintText: "Breakfast",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelText: "Course",
+                                labelStyle: TextStyle(
+                                    fontSize: 20, color: Colors.black54)),
+                          ),
+                        ),
                       ),
-                      Text(
-                        "Main Course",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
+                      // Prep + Cook time
+                      Padding(
+                        padding: const EdgeInsets.only(right: 60.0, top: 8),
+                        child: SizedBox(
+                          height: 50,
+                          child: TextField(
+                            showCursor: false,
+                            controller: pctimeController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                                disabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.purple[900])),
+                                // hintText: "Breakfast",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelText: "Prep + Cook time",
+                                labelStyle: TextStyle(
+                                    fontSize: 20, color: Colors.black54)),
+                          ),
+                        ),
                       ),
-                      Divider(
-                        thickness: 1,
-                        indent: 5,
-                        endIndent: 5,
+                      // Category
+                      Padding(
+                        padding: const EdgeInsets.only(right: 60.0, top: 8),
+                        child: SizedBox(
+                          height: 50,
+                          child: TextField(
+                            showCursor: false,
+                            controller: categoryController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                                disabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.purple[900])),
+                                // hintText: "Breakfast",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelText: "Category",
+                                labelStyle: TextStyle(
+                                    fontSize: 20, color: Colors.black54)),
+                          ),
+                        ),
                       ),
-                      Text(
-                        "prep + cook",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
-                      Divider(
-                        thickness: 1,
-                        indent: 5,
-                        endIndent: 5,
-                      ),
-                      Text(
-                        "Category",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
-                      Divider(
-                        thickness: 1,
-                        indent: 5,
-                        endIndent: 5,
-                      ),
-                      Text(
-                        "Cuisine",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
+                      // Cuisine
+                      Padding(
+                        padding: const EdgeInsets.only(right: 60.0, top: 8),
+                        child: SizedBox(
+                          height: 50,
+                          child: TextField(
+                            showCursor: false,
+                            controller: cuisineController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                                disabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.purple[900])),
+                                // hintText: "Breakfast",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelText: "Cuisine",
+                                labelStyle: TextStyle(
+                                    fontSize: 20, color: Colors.black54)),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: 40,
-                width: 260,
-                alignment: Alignment.bottomCenter,
-                decoration: BoxDecoration(
-                  /// Rating card color
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: RatingBar.builder(
-                  initialRating: 3,
-                  minRating: 1,
-                  glow: false,
-                  direction: Axis.horizontal,
-                  allowHalfRating: true,
-                  itemCount: 5,
-                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => Icon(
-                    Icons.star,
-                    /// Star color
-                    color: appBarColor,
-                    size: 15,
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8, bottom: 55),
+                child: Container(
+                  height: 240,
+                  width: 40,
+                  alignment: Alignment.bottomRight,
+                  decoration: BoxDecoration(
+                    /// Rating card color
+                    color: Colors.lime[100],
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  // itemBuilder: (context, index) {
-                  //   switch (index) {
-                  //     case 0:
-                  //       return Icon(
-                  //         Icons.star,
-                  //         color: Colors.red,
-                  //       );
-                  //       break;
-                  //     case 1:
-                  //       return Icon(
-                  //         Icons.star,
-                  //         color: Colors.orange,
-                  //       );
-                  //       break;
-                  //     case 2:
-                  //       return Icon(
-                  //         Icons.star,
-                  //         color: Colors.amber,
-                  //       );
-                  //       break;
-                  //     case 3:
-                  //       return Icon(
-                  //         Icons.star,
-                  //         color: Colors.lightGreen,
-                  //       );
-                  //       break;
-                  //     case 4:
-                  //       return Icon(
-                  //         Icons.star,
-                  //         color: Colors.green,
-                  //       );
-                  //       break;
-                  //   }
-                  // },
+                  child: RotatedBox(
+                    quarterTurns: 2,
+                    child: RatingBar.builder(
+                      initialRating: 3,
+                      minRating: 1,
+                      glow: false,
+                      direction: Axis.vertical,
+                      allowHalfRating: true,
+                      itemCount: 5,
+                      itemPadding: EdgeInsets.symmetric(vertical: 4.0),
+                      // itemBuilder: (context, _) => Icon(
+                      //   Icons.star,
 
-                  onRatingUpdate: (rating) {
-                    print(rating);
-                  },
+                      //   /// Star color
+                      //   color: appBarColor,
+                      //   size: 15,
+                      // ),
+                      itemBuilder: (context, index) {
+                        switch (index) {
+                          case 0:
+                            return Icon(
+                              Icons.star,
+                              color: Colors.purple[200],
+                            );
+                            break;
+                          case 1:
+                            return Icon(
+                              Icons.star,
+                              color: Colors.purple[300],
+                            );
+                            break;
+                          case 2:
+                            return Icon(
+                              Icons.star,
+                              color: Colors.purple[400],
+                            );
+                            break;
+                          case 3:
+                            return Icon(
+                              Icons.star,
+                              color: Colors.purple[700],
+                            );
+                            break;
+                          case 4:
+                            return Icon(
+                              Icons.star,
+                              color: Colors.purple[900],
+                            );
+                            break;
+                        }
+                      },
+
+                      onRatingUpdate: (rating) {
+                        print(rating);
+                      },
+                    ),
+                  ),
                 ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
       duration: duration,
     );
@@ -178,6 +266,11 @@ class _StoryPageState extends State<StoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    dietController.text = "Vegetarian";
+    courseController.text = "Dessert";
+    pctimeController.text = "30 + 30 mins";
+    categoryController.text = "Sweet";
+    cuisineController.text = "Indian";
     return SafeArea(
       child: Material(
           child: Stack(
@@ -186,13 +279,7 @@ class _StoryPageState extends State<StoryPage> {
             children: [
               StoryView(
                 onVerticalSwipeComplete: (direction) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        // fullscreenDialog: true,
-                        // maintainState: true,
-                        builder: (context) => StoryPage(),
-                      ));
+                  print("Swipe up");
                 },
                 repeat: false,
                 progressPosition: ProgressPosition.top,

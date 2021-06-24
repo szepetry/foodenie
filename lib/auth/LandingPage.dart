@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:foodenie/HomePage.dart';
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/auth/SignInPage.dart';
+import '../pages/meal_timings.dart';
 import 'package:provider/provider.dart';
 
 class LandingPage extends StatelessWidget {
@@ -15,6 +16,7 @@ class LandingPage extends StatelessWidget {
             String uid = snapshot.data.uid;
             Auth auth = Auth(uid);
             return HomePage(auth);
+            // return MealTimings(auth);
           }
           return SignInPage();
         });
