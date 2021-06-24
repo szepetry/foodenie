@@ -50,9 +50,9 @@ class _HomePageState extends State<HomePage> {
     //   link = ImagesHelper().getImage("Kheer");
     // });
 
-    // Workmanager()
-    //     .initialize(getRestaurantsBackgroundService, isInDebugMode: true);
-    // Workmanager().cancelAll();
+    Workmanager()
+        .initialize(getRestaurantsBackgroundService, isInDebugMode: true);
+    Workmanager().cancelAll();
 
     // Workmanager().registerOneOffTask("1", "Foodenie Background Service");
     // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", "Foodenie Background Service",frequency: Duration(minutes: 15),);
