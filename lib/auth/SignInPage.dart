@@ -16,13 +16,7 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment
-              .bottomRight, // 10% of the width, so there are ten blinds.
-          colors: [Colors.lightBlue[500], Colors.blue[900]], // red to yellow
-          tileMode: TileMode.repeated, // repeats the gradient over the canvas
-        ),
+        color: Colors.lime[100]
       ),
       height: MediaQuery.of(context).size.height,
       child: Center(
@@ -30,27 +24,7 @@ class _SignInPageState extends State<SignInPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(),
-            Container(
-              child: Column(
-                children: [
-                  Text(
-                    'Welcome to',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 35,
-                        fontWeight: FontWeight.bold,
-                        textBaseline: TextBaseline.alphabetic),
-                  ),
-                  Text(
-                    'Foodenie',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 35,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
+            Image.asset("assets/logo/foodenieLogoWithoutCarpet.png"),
             Container(
               height: MediaQuery.of(context).size.height * 0.3,
               child: Column(
@@ -64,8 +38,10 @@ class _SignInPageState extends State<SignInPage> {
                                 foregroundColor:
                                     MaterialStateProperty.all<Color>(
                                         Colors.white),
+                                        backgroundColor: MaterialStateProperty.all<Color>(
+                                        Colors.purple[900]),
                                 side: MaterialStateProperty.all<BorderSide>(
-                                    BorderSide(color: Colors.white))),
+                                    BorderSide(color: Colors.black))),
                             onPressed: () async {
                               setState(() {
                                 signInStart = true;
@@ -110,7 +86,7 @@ class _SignInPageState extends State<SignInPage> {
                                   width: 20,
                                   height: 20,
                                 ),
-                                Text('Sign in with Google'),
+                                Text('Sign in with Google',style: TextStyle(color: Colors.white),),
                               ],
                             ),
                           ),

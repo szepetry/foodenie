@@ -52,7 +52,7 @@ class _StoryPageState extends State<StoryPage> {
             Positioned(
               top: deviceHeight * 0.40 + 40,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
                 child: SizedBox(
                   height: deviceHeight - deviceHeight * 0.40 - 40,
                   width: deviceWidth,
@@ -185,9 +185,9 @@ class _StoryPageState extends State<StoryPage> {
               ),
             ),
             Align(
-              alignment: Alignment.bottomRight,
+              alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 8, bottom: 55),
+                padding: const EdgeInsets.only(right: 8,top: 300),
                 child: Container(
                   height: 240,
                   width: 40,
