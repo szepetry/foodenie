@@ -310,33 +310,51 @@ class _HomePageState extends State<HomePage> {
                                   decorationThickness: 3,
                                   fontWeight: FontWeight.w200))),
                     ),
-                    Row(
-                      // crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TrendingBuilder(
-                          asset: "assets/images/jalebi.jpg",
-                          number: "1",
-                        ),
-                        TrendingBuilder(
-                          asset: "assets/images/jalebi.jpg",
-                          number: "2",
-                        )
-                      ],
+                    SizedBox(
+                      width: getScreenSize.width,
+                      child: Row(
+                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: TrendingBuilder(
+                              asset: "assets/images/jalebi.jpg",
+                              number: "1",
+                            ),
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: TrendingBuilder(
+                              asset: "assets/images/jalebi.jpg",
+                              number: "2",
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                    Row(
-                      // crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TrendingBuilder(
-                          asset: "assets/images/jalebi.jpg",
-                          number: "3",
-                        ),
-                        TrendingBuilder(
-                          asset: "assets/images/jalebi.jpg",
-                          number: "4",
-                        )
-                      ],
+                    SizedBox(
+                      width: getScreenSize.width,
+                      child: Row(
+                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: TrendingBuilder(
+                              asset: "assets/images/jalebi.jpg",
+                              number: "3",
+                            ),
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: TrendingBuilder(
+                              asset: "assets/images/jalebi.jpg",
+                              number: "4",
+                            ),
+                          )
+                        ],
+                      ),
                     )
 
                     // Future builder for building images based on String
