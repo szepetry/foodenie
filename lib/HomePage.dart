@@ -506,31 +506,34 @@ class _HomePageState extends State<HomePage> {
                                             decorationThickness: 3,
                                             fontWeight: FontWeight.w200))),
                               ),
-                              Row(
-                                // crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  trendingItems[0],
-                                  trendingItems[1]
-                                ] /* [
-                                  TrendingBuilder(
-                                    asset: "assets/images/jalebi.jpg",
-                                    number: "1",
-                                  ),
-                                  TrendingBuilder(
-                                    asset: "assets/images/jalebi.jpg",
-                                    number: "2",
-                                  )
-                                ] */
-                                ,
+                              SizedBox(
+                                width: getScreenSize.width,
+                                child: Row(
+                                  // crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Flexible(flex: 1, child: trendingItems[0]),
+                                    Flexible(flex: 1, child: trendingItems[1])
+                                  ] /* [
+                                    TrendingBuilder(
+                                      asset: "assets/images/jalebi.jpg",
+                                      number: "1",
+                                    ),
+                                    TrendingBuilder(
+                                      asset: "assets/images/jalebi.jpg",
+                                      number: "2",
+                                    )
+                                  ] */
+                                  ,
+                                ),
                               ),
                               Row(
                                 // crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   //Container()
-                                  trendingItems[2],
-                                  trendingItems[3]
+                                  Flexible(flex: 1, child: trendingItems[2]),
+                                  Flexible(flex: 1, child: trendingItems[3])
                                 ] /* [
                                   TrendingBuilder(
                                     asset: "assets/images/jalebi.jpg",

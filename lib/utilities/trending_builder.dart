@@ -6,7 +6,7 @@ import 'package:foodenie/pages/story_page.dart';
 class TrendingBuilder extends StatelessWidget {
   final String number;
   final Map<String, dynamic> foodItem;
-
+  //can add name of food item as well if reqd - foodItem['recipe_title'] - string
   const TrendingBuilder(
       {Key key, @required this.foodItem, @required this.number})
       : super(key: key);
