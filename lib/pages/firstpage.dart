@@ -1,11 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:foodenie/pages/displayPage.dart';
+import 'package:foodenie/reccommender.dart';
 import 'package:foodenie/utilities/constants.dart';
 import 'package:foodenie/utilities/reusableCard.dart';
 import 'package:foodenie/utilities/selectedCard.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-
 
 List<String> itemNames = [
   'veg',
@@ -86,6 +85,7 @@ class _FirstPageState extends State<FirstPage> {
               ],
             ));
   }
+
   void colorActivityOfCard(String item) {
     if (item == 'veg' || item == 'nonVeg') {
       item == 'veg'
@@ -106,7 +106,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: appBarColor,
+        backgroundColor: Color(0XFF1F125A),
         leading: GestureDetector(
           child: Icon(Icons.wb_sunny),
           onTap: _showMaterialDialog,
@@ -156,7 +156,7 @@ class _FirstPageState extends State<FirstPage> {
                   child: ReusableCard(
                     onPress: () {
                       setState(() {
-                         colorActivityOfCard('diet');
+                        colorActivityOfCard('diet');
                       });
                     },
                     colour: colorOfItem['diet'],
@@ -219,24 +219,25 @@ class _FirstPageState extends State<FirstPage> {
           ),
           BottomButton(
             title: 'Submit',
-            ontap: () {
+            ontap: () async {
+              List<String> selectedName = [];
               setState(() {
-                List<String> selectedName = [];
                 for (int i = 0; i < colorOfItem.length; i++) {
                   if (colorOfItem[itemNames[i]] == activeColor) {
                     selectedName.add(itemNames[i]);
                   }
                 }
-              // print(colorOfItem.containsValue(activeColor));
+                // print(colorOfItem.containsValue(activeColor));
                 print(selectedName);
-                Navigator.push(context, MaterialPageRoute(builder: (context){
-      return DisplayPage();
-    }));
-
               });
+              var doc = await user.doc(fbUid).get();
+              user.doc(doc.id).update({
+                'prefs': FieldValue.arrayUnion(
+                    selectedName.isEmpty ? itemNames : selectedName)
+              });
+              Navigator.of(context).pop();
             },
           ),
-          
         ],
       ),
     );
