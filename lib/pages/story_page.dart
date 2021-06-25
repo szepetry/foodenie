@@ -3,6 +3,7 @@ import 'package:foodenie/reccommender.dart';
 
 import "package:story_view/story_view.dart";
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import '../utilities/images_helper.dart';
 import '../utilities/constants.dart';
 
 class StoryPage extends StatefulWidget {
@@ -18,6 +19,12 @@ class _StoryPageState extends State<StoryPage> {
   double get deviceWidth => MediaQuery.of(context).size.width;
   double rating;
   List<StoryItem> storyItemList = [];
+
+  // TextEditingController dietController = TextEditingController();
+  // TextEditingController courseController = TextEditingController();
+  // TextEditingController pctimeController = TextEditingController();
+  // TextEditingController categoryController = TextEditingController();
+  // TextEditingController cuisineController = TextEditingController();
 
   final StoryController controller = StoryController();
 
@@ -46,15 +53,8 @@ class _StoryPageState extends State<StoryPage> {
               flex: 4,
               child: Padding(
                 padding: const EdgeInsets.only(left: 1, right: 1),
-                child: Container(
-                  // height: deviceHeight * 0.40,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      image: DecorationImage(
-                          alignment: Alignment.topCenter,
-                          fit: BoxFit.cover,
-                          image: NetworkImage(foodItem['link']))),
-                ),
+                child:
+                    SizedBox.expand(child: progressBuilder(foodItem['link'])),
               ),
             ),
             Flexible(
@@ -213,6 +213,7 @@ class _StoryPageState extends State<StoryPage> {
                           child: RotatedBox(
                             quarterTurns: 2,
                             child: RatingBar.builder(
+                              // initialRating: double.parse(foodItem['rank'].toString()),
                               initialRating: 3,
                               minRating: 1,
                               glow: false,
