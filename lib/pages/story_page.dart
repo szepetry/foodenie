@@ -76,10 +76,11 @@ class _StoryPageState extends State<StoryPage> {
                                   foodItem['recipe_title'],
                                   style: TextStyle(
                                       fontSize: 25,
-                                      decoration: TextDecoration.overline,
+                                     //r decoration: TextDecoration.overline,
                                       decorationThickness: 2,
                                       fontWeight: FontWeight.w400),
-                                )),
+                                ),
+                                ),
                             // Diet
                             Padding(
                               padding:
