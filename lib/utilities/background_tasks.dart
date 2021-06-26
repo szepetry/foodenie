@@ -1,5 +1,4 @@
 import '../api_key.dart';
-import '../weather/current_location.dart';
 import 'notifications.dart';
 import 'package:foodenie/weather/network.dart';
 import "package:google_maps_webservice/places.dart";

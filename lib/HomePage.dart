@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -10,12 +9,10 @@ import 'package:flutter/services.dart';
 
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/initFoods.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'reccommender.dart';
 import 'package:foodenie/pages/loading.dart';
 import "package:story_view/story_view.dart";
 import 'pages/story_page.dart';
-import 'api_key.dart';
 import 'utilities/background_tasks.dart';
 import 'utilities/notifications.dart';
 import 'utilities/images_helper.dart';
@@ -25,7 +22,6 @@ import 'utilities/trending_builder.dart';
 import "package:google_maps_webservice/places.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 import 'dart:developer';
 
@@ -186,13 +182,6 @@ class _HomePageState extends State<HomePage> {
     checkMealTime();
     backgroundRecommendationService();
 
-    // somefunc();
-
-    // AndroidAlarmManager.cancel(69);
-    // PlacesAPI().getRestaurants();
-
-    // initializeAlarmManager();
-
     // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     // Workmanager().cancelAll();
 
@@ -215,7 +204,6 @@ class _HomePageState extends State<HomePage> {
             setState(() {});
           });
         });
-        // print(element['link'].toString());
       });
     });
 
@@ -273,7 +261,6 @@ class _HomePageState extends State<HomePage> {
     log(prefs.getInt("lunchMinute").toString(), name: "lunchMinute");
     log(prefs.getInt("dinnerHour").toString(), name: "dinnerHour");
     log(prefs.getInt("dinnerMinute").toString(), name: "dinnerMinute");
-    // log(TimeOfDay(hour: prefs.getInt("breakfastHour"), minute: prefs.getInt("breakfastMinute")).format(context));
   }
 
   Widget reloadPage() {
@@ -314,17 +301,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    foodItems.get().then((value) {
-      value.docs.forEach((element) {
-        if (element
-            .data()['recipe_title']
-            .toString()
-            .toLowerCase()
-            .contains("Strawberry Compote Galette")) {
-          print(element.data().toString());
-        }
-      });
-    });
+    // foodItems.get().then((value) {
+    //   value.docs.forEach((element) {
+    //     if (element
+    //         .data()['recipe_title']
+    //         .toString()
+    //         .contains("Eat")) {
+    //       print(element.data().toString()+"YEP YEP");
+    //       print(element.id);
+    //     }
+    //   });
+    // });
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.lime,

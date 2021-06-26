@@ -1,10 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:foodenie/auth/LandingPage.dart';
-import 'dart:isolate';
-import 'dart:math';
-import 'dart:ui';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 // import 'package:shared_preferences/shared_preferences.dart';

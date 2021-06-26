@@ -4,7 +4,6 @@ import 'package:foodenie/reccommender.dart';
 import "package:story_view/story_view.dart";
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../utilities/images_helper.dart';
-import '../utilities/constants.dart';
 
 class StoryPage extends StatefulWidget {
   Map<String, dynamic> foodItem;
@@ -87,7 +86,7 @@ class _StoryPageState extends State<StoryPage> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                foodItem['recipe_title'],
+                                stringCleaner(foodItem['recipe_title']),
                                 style: TextStyle(
                                     fontSize: 25,
                                     //r decoration: TextDecoration.overline,
@@ -125,7 +124,7 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: foodItem['course'],
+                                  initialValue: stringCleaner(foodItem['course']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -173,7 +172,7 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: foodItem['cuisine'],
+                                  initialValue: stringCleaner(foodItem['cuisine']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -194,7 +193,7 @@ class _StoryPageState extends State<StoryPage> {
                               padding:
                                   const EdgeInsets.only(right: 20.0, top: 8),
                               child: SizedBox(
-                                height: 60,
+                                // height: 60,
                                 child: TextFormField(
                                   initialValue: stringCleaner(foodItem['tags']),
                                   showCursor: false,

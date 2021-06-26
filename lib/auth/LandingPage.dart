@@ -1,13 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:foodenie/HomePage.dart';
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/auth/SignInPage.dart';
-import 'package:foodenie/initFoods.dart';
 import 'package:foodenie/reccommender.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../pages/meal_timings.dart';
-import 'package:provider/provider.dart';
 
 import '../initPage.dart';
 
@@ -61,8 +57,11 @@ class LandingPage extends StatelessWidget {
                       token = snapshot3.data.idToken;
                       return InitPage(auth);
                     }
-                    return Center(
-                      child: CircularProgressIndicator(),
+                    return Container(
+                      color: Colors.lime[100],
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     );
                   });
             }
