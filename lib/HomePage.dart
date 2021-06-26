@@ -1,8 +1,11 @@
+import 'dart:isolate';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'package:foodenie/auth/Auth.dart';
@@ -13,7 +16,7 @@ import 'package:foodenie/pages/loading.dart';
 import "package:story_view/story_view.dart";
 import 'pages/story_page.dart';
 import 'api_key.dart';
-import 'utilities/places_api.dart';
+import 'utilities/background_tasks.dart';
 import 'utilities/notifications.dart';
 import 'utilities/images_helper.dart';
 import 'pages/meal_timings.dart';
@@ -22,6 +25,7 @@ import 'utilities/trending_builder.dart';
 import "package:google_maps_webservice/places.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 import 'dart:developer';
 
@@ -177,16 +181,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+
     // checkTimings();
     checkMealTime();
+    backgroundRecommendationService();
+
+    // somefunc();
+
+    // AndroidAlarmManager.cancel(69);
     // PlacesAPI().getRestaurants();
 
-    // Workmanager()
-    //     .initialize(getRestaurantsBackgroundService, isInDebugMode: true);
+    // initializeAlarmManager();
+
+    // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     // Workmanager().cancelAll();
 
-    // Workmanager().registerOneOffTask("1", "Foodenie Background Service");
-    // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", "Foodenie Background Service",frequency: Duration(minutes: 15),);
+    // Workmanager().registerOneOffTask("1", backgroundPlacesKey);
+
+    // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", backgroundPlacesKey,);
 
     initRecommend().then((value) {
       trendingList.forEach((element) {
@@ -302,17 +314,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // foodItems.get().then((value) {
-    //   value.docs.forEach((element) {
-    //     if (element
-    //         .data()['recipe_title']
-    //         .toString()
-    //         .toLowerCase()
-    //         .contains("strawberry")) {
-    //       print(element.data().toString());
-    //     }
-    //   });
-    // });
+    foodItems.get().then((value) {
+      value.docs.forEach((element) {
+        if (element
+            .data()['recipe_title']
+            .toString()
+            .toLowerCase()
+            .contains("Strawberry Compote Galette")) {
+          print(element.data().toString());
+        }
+      });
+    });
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.lime,
@@ -464,7 +476,7 @@ class _HomePageState extends State<HomePage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: StoryView(
-                                        /* onVerticalSwipeComplete: (direction) {
+                                          /* onVerticalSwipeComplete: (direction) {
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -472,11 +484,11 @@ class _HomePageState extends State<HomePage> {
                                                     StoryPage(recFoods),
                                               ));
                                         }, */
-                                        repeat: true,
-                                        progressPosition: ProgressPosition.top,
-                                        controller: controller,
-                                        storyItems: storyFoods
-                                      ),
+                                          repeat: true,
+                                          progressPosition:
+                                              ProgressPosition.top,
+                                          controller: controller,
+                                          storyItems: storyFoods),
                                     ),
                                     Align(
                                       alignment: Alignment.bottomCenter,
