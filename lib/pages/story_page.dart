@@ -295,7 +295,7 @@ class _StoryPageState extends State<StoryPage> {
           child: WillPopScope(
         onWillPop: () {
           if (rating != null) {
-            updateRank(widget.foodItem['food_ID'], rating)
+            updateRank(widget.foodItem['food_ID'], value: rating, isPrefs: true)
                 .then((value) => null);
           }
           return Future.value(true);

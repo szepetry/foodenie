@@ -21,6 +21,7 @@ class _InitFoodsState extends State<InitFoods> {
   bool isLoading = true;
   bool isButtonLoading = false;
   List<Map<String, dynamic>> selected = [];
+  Iterable<Map<String, dynamic>> filtered = [];
   @override
   void initState() {
     if (!isLoading)
@@ -37,6 +38,30 @@ class _InitFoodsState extends State<InitFoods> {
         .get()
         .then((value) {
       dbFoods = value.docs.map((e) => e.data()).toList();
+      List<dynamic> userPrefs = parseList(userObj['prefs']);
+      this.filtered = allFoodsList.where((element) {
+        String diet = element['diet'];
+        String course = element['course'];
+        if (userPrefs.contains(diet) || userPrefs.contains(course))
+          return true;
+        else
+          return false;
+      });
+      for (var i = 0; i < filtered.length; i++) {
+        const veg = [
+          'Vegetarian',
+          'Eggetarian',
+          'High Protein Vegetarian',
+          'Vegan'
+        ];
+        const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
+        String dietTemp = filtered.elementAt(i)['diet'];
+        if (veg.contains(dietTemp)) {
+          foods.add(filtered.elementAt(i));
+        } else if (nonVeg.contains(filtered.elementAt(i))) {
+          foods.add(filtered.elementAt(i));
+        }
+      }
       setState(() {
         foods.addAll(dbFoods.getRange(0, 6));
         for (var i = 0; i < foods.length; i++) {
@@ -50,8 +75,6 @@ class _InitFoodsState extends State<InitFoods> {
     });
     super.initState();
   }
-
-  
 
   String getLink([String course]) {
     Random rand = new Random();
@@ -136,7 +159,7 @@ class _InitFoodsState extends State<InitFoods> {
               });
               foods.forEach((element) async {
                 if (element['selected'] == true) {
-                  await updateRank(element['food_ID']);
+                  await updateRank(element['food_ID'], value: 5, isPrefs: true);
                 }
               });
               await user.doc(fbUid).update({'isSetupDone': true});

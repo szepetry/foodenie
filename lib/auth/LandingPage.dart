@@ -50,6 +50,7 @@ class LandingPage extends StatelessWidget {
                   });
             } else {
               print('current user not null');
+
               return StreamBuilder<GoogleSignInAuthentication>(
                   stream:
                       Auth.googleAuthObj.currentUser.authentication.asStream(),

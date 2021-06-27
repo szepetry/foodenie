@@ -60,7 +60,8 @@ List<Map<String, dynamic>> trendingList = [];
 CollectionReference user = FirebaseFirestore.instance.collection('users');
 CollectionReference foodItems =
     FirebaseFirestore.instance.collection('food_items');
-
+List<dynamic> likedItems = [];
+List<dynamic> dislikedItems = [];
 List<String> parseList(List<dynamic> userPrefs) {
   List<String> res = [];
   userPrefs.forEach((element) {
@@ -140,6 +141,7 @@ String getLink(String diet, String course, String name) {
   }
   if (diet.contains('Non')) {
     int idx = rand.nextInt(nonVegFoods.length);
+
     return nonVegFoods[idx];
   } else {
     int idx = rand.nextInt(vegFoods.length);
@@ -175,12 +177,11 @@ Future<Map<String, dynamic>> recommend({bool isTimeRec = false}) async {
     e.addAll({'link': getLink(e['diet'], e['course'], e['recipe_title'])});
     return e;
   }).toList();
-  String foodId = filtered.elementAt(0)['food_ID'].toString();
+  //filtered.elementAt(0)['food_ID'].toString();
   String timeRec = isTimeRec.toString();
   try {
-    Object body = jsonEncode({"prefs": userPrefs});
-    Uri url =
-        Uri.parse('$baseUrl' + 'recommend?foodId=$foodId&timeRec=$timeRec');
+    Object body = jsonEncode({"prefs": userPrefs, "likedItems": likedItems});
+    Uri url = Uri.parse('$baseUrl' + 'recommend?timeRec=$timeRec');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -201,15 +202,38 @@ Future<Map<String, dynamic>> recommend({bool isTimeRec = false}) async {
   }
 }
 
-Future<void> updateRank(int foodId, [double value]) async {
+Future<void> updateRank(int foodId,
+    {double value, bool isPrefs = false}) async {
   num inc = 1;
   if (value != null && value < 3) {
     inc = -1;
   }
   var foodDoc = await foodItems.where('food_ID', isEqualTo: foodId).get();
   foodDoc.docs.forEach((element) async {
-    await foodItems
-        .doc(element.id.toString())
-        .update({'rank': FieldValue.increment(inc)});
+    var doc = foodItems.doc(element.id.toString());
+    await doc.update({'rank': FieldValue.increment(inc)});
+    if (isPrefs) {
+      inc == 1
+          ? rateFood(ref: element.reference, isLike: true)
+          : rateFood(isLike: false, foodId: foodId);
+    }
   });
 }
+
+Future<void> rateFood({DocumentReference ref, bool isLike, int foodId}) async {
+  if (isLike) {
+    await user.doc(fbUid).update({
+      'liked': FieldValue.arrayUnion([ref])
+    });
+  } else {
+    await user.doc(fbUid).update({
+      'disLiked': FieldValue.arrayUnion([foodId])
+    });
+  }
+}
+
+/* Future<void> updatePrefs(int foodId) async {
+  await foodItems.where('food_ID',isEqualTo: foodId).get().then((value){
+    
+  });
+} */

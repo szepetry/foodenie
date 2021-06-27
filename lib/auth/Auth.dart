@@ -46,6 +46,8 @@ class AppUser {
         "name": name,
         "phoneNumber": phoneNumber,
         "email": email,
-        "isSetupDone": false
+        "isSetupDone": false,
+        "liked":[],
+        "disliked":[]
       };
 }
