@@ -155,8 +155,8 @@ String getLink(String diet, String course, String name) {
 }
 
 bool checkTiming(DateTime now, DateTime foodTime) {
-  bool res = now.isBefore(foodTime.add(Duration(minutes: 60))) &&
-      now.isAfter(foodTime.subtract(Duration(minutes: 60)));
+  bool res = now.isBefore(foodTime.add(Duration(minutes: 120))) &&
+      now.isAfter(foodTime.subtract(Duration(minutes: 120)));
   return res;
 }
 
