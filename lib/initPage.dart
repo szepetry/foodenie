@@ -41,13 +41,8 @@ class _InitPageState extends State<InitPage> {
 
     user.doc(widget.auth.uid).get().then((value) async {
       userObj = value.data();
-      userObj['liked'].forEach((ref) async {
-        DocumentReference r = ref;
-        var item = await r.get();
-        likedItems.add(item);
-      });
 
-      dislikedItems = userObj['disLiked'].map((o) => o).toList();
+      //
       var fdDocs = await foodItems.orderBy('rank', descending: true).get();
       allFoodsList = fdDocs.docs.map((e) => e.data()).toList();
       /* List<String> temp = [];
@@ -100,6 +95,7 @@ class _InitPageState extends State<InitPage> {
 
   @override
   Widget build(BuildContext context) {
+    //Auth.signOut();
     return Container(
       child: isLoading
           ? Center(

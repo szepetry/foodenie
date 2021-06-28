@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'reccommender.dart';
+import 'utilities/images_helper.dart';
 
 class InitFoods extends StatefulWidget {
   var scrollCallback;
@@ -22,6 +23,9 @@ class _InitFoodsState extends State<InitFoods> {
   bool isButtonLoading = false;
   List<Map<String, dynamic>> selected = [];
   Iterable<Map<String, dynamic>> filtered = [];
+  List<String> imagesAll = [];
+  int count = 0;
+
   @override
   void initState() {
     if (!isLoading)
@@ -42,11 +46,15 @@ class _InitFoodsState extends State<InitFoods> {
       this.filtered = allFoodsList.where((element) {
         String diet = element['diet'];
         String course = element['course'];
-        if (userPrefs.contains(diet) || userPrefs.contains(course))
-          return true;
-        else
+        if (userPrefs.contains(diet)) {
+          if (userPrefs.contains(course))
+            return true;
+          else
+            return false;
+        } else
           return false;
       });
+      int j = 0;
       for (var i = 0; i < filtered.length; i++) {
         const veg = [
           'Vegetarian',
@@ -58,15 +66,24 @@ class _InitFoodsState extends State<InitFoods> {
         String dietTemp = filtered.elementAt(i)['diet'];
         if (veg.contains(dietTemp)) {
           foods.add(filtered.elementAt(i));
+          j++;
         } else if (nonVeg.contains(filtered.elementAt(i))) {
           foods.add(filtered.elementAt(i));
+          j++;
         }
+        if (j == 5) break;
       }
       setState(() {
-        foods.addAll(dbFoods.getRange(0, 6));
+        // Work here
         for (var i = 0; i < foods.length; i++) {
           foods[i]['selected'] = false;
-          foods[i]['link'] = getLink(foods[i]['course']);
+          foods[i]['link'] =
+              "https://miro.medium.com/max/1400/1*MyAk_JfQZqzCF8qIIoWF5A.png";
+          ImagesHelper().getImage(foods[i]['recipe_title']).then((value) {
+            setState(() {
+              foods[i]['link'] = value;
+            });
+          });
         }
       });
     });
@@ -107,9 +124,16 @@ class _InitFoodsState extends State<InitFoods> {
           });
           if (temp.isEmpty) {
             e['selected'] = false;
-            e['link'] = getLink(e['course']);
-            foods.add(e);
-            i++;
+            e['link'] =
+                "https://miro.medium.com/max/1400/1*MyAk_JfQZqzCF8qIIoWF5A.png";
+            ImagesHelper().getImage(e['recipe_title']).then((value) {
+              setState(() {
+                e['link'] = value;
+              });
+            }).then((value) {
+              foods.add(e);
+              i++;
+            });
           }
         }
       } else {
@@ -125,8 +149,9 @@ class _InitFoodsState extends State<InitFoods> {
       debugShowCheckedModeBanner: false,
       home: SafeArea(
         child: Scaffold(
+          backgroundColor: Colors.lime[100],
           floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.purple[900],
             child: isButtonLoading
                 ? Container(
                     width: 20,
@@ -172,6 +197,7 @@ class _InitFoodsState extends State<InitFoods> {
           body: Container(
             height: scSize.height * 0.95,
             width: scSize.width * 0.95,
+            color: Colors.lime[100],
             margin: EdgeInsets.only(
                 top: scSize.height * 0.02, left: scSize.width * 0.025),
             alignment: Alignment.center,
@@ -179,33 +205,55 @@ class _InitFoodsState extends State<InitFoods> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      childAspectRatio: 1,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                      crossAxisCount: 2,
-                    ),
-                    itemCount: foods.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      Map<String, dynamic> item = foods[index];
-                      String name = item['recipe_title'];
-                      String link = foods[index]['link'];
-                      int id = item['food_ID'];
-                      return GestureDetector(
-                          onTap: () {
-                            getSimilar(foods[index]['cuisine'],
-                                foods[index]['diet'], foods[index]['category']);
-                            setState(() {});
-                            setState(() {
-                              foods[index]['selected'] =
-                                  !foods[index]['selected'];
-                            });
-                          },
-                          child:
-                              FoodTile(name, link, foods[index]['selected']));
-                    }),
+                : Column(
+                    // shrinkWrap: true,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+                        child: Text(
+                          "Select at least 5 food items.",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 25,
+                            // decoration: TextDecoration.overline,
+                            // decorationThickness: 3,
+                            fontWeight: FontWeight.w200,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              childAspectRatio: 1,
+                              mainAxisSpacing: 20,
+                              crossAxisSpacing: 20,
+                              crossAxisCount: 2,
+                            ),
+                            itemCount: foods.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              Map<String, dynamic> item = foods[index];
+                              String name = item['recipe_title'];
+                              String link = foods[index]['link'];
+                              int id = item['food_ID'];
+                              return GestureDetector(
+                                  onTap: () {
+                                    getSimilar(
+                                        foods[index]['cuisine'],
+                                        foods[index]['diet'],
+                                        foods[index]['category']);
+                                    setState(() {});
+                                    setState(() {
+                                      foods[index]['selected'] =
+                                          !foods[index]['selected'];
+                                    });
+                                  },
+                                  child: FoodTile(
+                                      name, link, foods[index]['selected']));
+                            }),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -225,7 +273,7 @@ class FoodTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-            color: Colors.green[200], width: !isSelected ? 0.5 : 2.0),
+            color: Colors.purple[900], width: !isSelected ? 0.5 : 2.0),
         borderRadius: BorderRadius.all(
           Radius.circular(10),
         ),
@@ -237,6 +285,7 @@ class FoodTile extends StatelessWidget {
         children: [
           CircleAvatar(
             backgroundImage: NetworkImage(link),
+            backgroundColor: Colors.lime,
             radius: 35,
           ),
           Container(

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodenie/auth/Auth.dart';
+import 'package:foodenie/utilities/background_tasks.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
@@ -112,9 +113,13 @@ List<dynamic> timeFilteredList(List<dynamic> prefs, {bool isTimeRec}) {
   if (isTimeRec) {
     prefs.remove('Snack');
     prefs.remove('Dessert');
-    prefs.addAll(['Indian Breakfast', 'Main Course', 'Dinner']);
+    //Iterable<dynamic> items = ['Indian Breakfast', 'Main Course', 'Dinner'];
+    prefs.add('Indian Breakfast');
+    prefs.add('Main Course');
+    prefs.add('Dinner');
     return prefs;
   }
+  print(prefs);
   return prefs;
 }
 
@@ -149,39 +154,102 @@ String getLink(String diet, String course, String name) {
   }
 }
 
-Future<Map<String, dynamic>> recommend({bool isTimeRec = false}) async {
+bool checkTiming(DateTime now, DateTime foodTime) {
+  bool res = now.isBefore(foodTime.add(Duration(minutes: 60))) &&
+      now.isAfter(foodTime.subtract(Duration(minutes: 60)));
+  return res;
+}
+
+Future<bool> checkTimeRec() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  DateTime now = new DateTime.now();
+  int bfHour = prefs.getInt('breakfastHour');
+  int bfMin = prefs.getInt('breakfastMinute');
+  DateTime bf = new DateTime(now.year, now.month, now.day, bfHour, bfMin);
+  int lnHr = prefs.getInt('lunchHour');
+  int lnMin = prefs.getInt('lunchMinute');
+  DateTime lnch = new DateTime(now.year, now.month, now.day, lnHr, lnMin);
+  int dnHr = prefs.getInt('dinnerHour');
+  int dnMin = prefs.getInt('dinnerMinute');
+  DateTime dinr = new DateTime(now.year, now.month, now.day, dnHr, dnMin);
+  if (checkTiming(now, dinr) || checkTiming(now, lnch) || checkTiming(now, bf))
+    return Future.value(true);
+  else
+    return Future.value(false);
+}
+
+Future<Map<String, dynamic>> getWeatherData() async {
+  dynamic data = await PlacesAPI().getWeatherData();
+  int tempNum = double.parse(data['main']['temp'].toString()).round();
+  String weather = data['weather'][0]['main'].toString();
+  String temperature = "";
+  if (tempNum > 28) {
+    temperature = "Hot";
+  } else if (tempNum < 28 && tempNum > 20) {
+    temperature = "Normal";
+  } else if (tempNum < 20) {
+    temperature = "Cold";
+  }
+  return Future.value({"temperature": temperature, "weather": weather.trim()});
+}
+
+Future<Map<String, dynamic>> recommend() async {
   var result;
   http.Response res;
   print(token);
+  userObj['liked'].forEach((ref) async {
+    var item = await ref.get();
+    likedItems.add(item.data());
+  });
   List<dynamic> userPrefs = parseList(userObj['prefs']);
+
+  bool isTimeRec = await checkTimeRec();
+
   userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
   Iterable<Map<String, dynamic>> filtered = allFoodsList.where((element) {
     String diet = element['diet'];
     String course = element['course'];
+
     if (isTimeRec) {
       if (userPrefs.contains(diet)) {
-        if (userPrefs.contains(course))
+        if (userPrefs.contains(course)) {
           return true;
-        else
+        } else
           return false;
       } else
         return false;
     } else {
-      if (userPrefs.contains(diet) || userPrefs.contains(course))
+      if (userPrefs.contains(diet))
         return true;
       else
         return false;
+    }
+  });
+  var i = 0;
+  filtered.forEach((element) {
+    if (i <= 3) {
+      print(element['rank']);
+      print(element['recipe_title']);
+      i++;
     }
   });
   trendingList = filtered.take(4).map((e) {
     e.addAll({'link': getLink(e['diet'], e['course'], e['recipe_title'])});
     return e;
   }).toList();
+
+  var weatherData = await getWeatherData();
+  print(weatherData);
   //filtered.elementAt(0)['food_ID'].toString();
-  String timeRec = isTimeRec.toString();
   try {
-    Object body = jsonEncode({"prefs": userPrefs, "likedItems": likedItems});
-    Uri url = Uri.parse('$baseUrl' + 'recommend?timeRec=$timeRec');
+    Object body = jsonEncode({
+      "prefs": userPrefs,
+      "likedItems": likedItems,
+      "weather": weatherData['weather'],
+      "temperature": weatherData['temperature']
+    });
+    Uri url =
+        Uri.parse('$baseUrl' + 'recommend?timeRec=${isTimeRec.toString()}');
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -227,7 +295,7 @@ Future<void> rateFood({DocumentReference ref, bool isLike, int foodId}) async {
     });
   } else {
     await user.doc(fbUid).update({
-      'disLiked': FieldValue.arrayUnion([foodId])
+      'disliked': FieldValue.arrayUnion([foodId])
     });
   }
 }

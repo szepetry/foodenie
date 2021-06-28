@@ -3,7 +3,7 @@ import 'package:foodenie/reccommender.dart';
 
 import "package:story_view/story_view.dart";
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import '../utilities/constants.dart';
+import '../utilities/images_helper.dart';
 
 class StoryPage extends StatefulWidget {
   Map<String, dynamic> foodItem;
@@ -19,6 +19,12 @@ class _StoryPageState extends State<StoryPage> {
   double rating;
   List<StoryItem> storyItemList = [];
 
+  // TextEditingController dietController = TextEditingController();
+  // TextEditingController courseController = TextEditingController();
+  // TextEditingController pctimeController = TextEditingController();
+  // TextEditingController categoryController = TextEditingController();
+  // TextEditingController cuisineController = TextEditingController();
+
   final StoryController controller = StoryController();
 
   @override
@@ -30,6 +36,20 @@ class _StoryPageState extends State<StoryPage> {
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  String stringCleaner(String str) {
+    List<String> temp1 = str.split("|");
+    List<String> temp2 = [];
+
+    temp1.forEach((value) {
+      List<String> temp = value.split(" ");
+      temp.remove("s");
+      // print(temp);
+      temp2.add(temp.join(" "));
+    });
+
+    return temp2.join(" | ");
   }
 
   StoryItem storyItemBuilder(Duration duration, dynamic foodItem) {
@@ -46,15 +66,8 @@ class _StoryPageState extends State<StoryPage> {
               flex: 4,
               child: Padding(
                 padding: const EdgeInsets.only(left: 1, right: 1),
-                child: Container(
-                  // height: deviceHeight * 0.40,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      image: DecorationImage(
-                          alignment: Alignment.topCenter,
-                          fit: BoxFit.cover,
-                          image: NetworkImage(foodItem['link']))),
-                ),
+                child:
+                    SizedBox.expand(child: progressBuilder(foodItem['link'])),
               ),
             ),
             Flexible(
@@ -71,15 +84,16 @@ class _StoryPageState extends State<StoryPage> {
                           shrinkWrap: true,
                           children: [
                             Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  foodItem['recipe_title'],
-                                  style: TextStyle(
-                                      fontSize: 25,
-                                      decoration: TextDecoration.overline,
-                                      decorationThickness: 2,
-                                      fontWeight: FontWeight.w400),
-                                )),
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                stringCleaner(foodItem['recipe_title']),
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    //r decoration: TextDecoration.overline,
+                                    decorationThickness: 2,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
                             // Diet
                             Padding(
                               padding:
@@ -110,7 +124,7 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: foodItem['course'],
+                                  initialValue: stringCleaner(foodItem['course']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -126,29 +140,7 @@ class _StoryPageState extends State<StoryPage> {
                                 ),
                               ),
                             ),
-                            // Prep + Cook time
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 20.0, top: 8),
-                              child: SizedBox(
-                                height: 50,
-                                child: TextFormField(
-                                  initialValue: '30 + 30 mins',
-                                  showCursor: false,
-                                  enabled: false,
-                                  decoration: InputDecoration(
-                                      disabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.purple[900])),
-                                      // hintText: "Breakfast",
-                                      floatingLabelBehavior:
-                                          FloatingLabelBehavior.always,
-                                      labelText: "Prep + Cook time",
-                                      labelStyle: TextStyle(
-                                          fontSize: 20, color: Colors.black54)),
-                                ),
-                              ),
-                            ),
+
                             // Category
                             Padding(
                               padding:
@@ -156,7 +148,8 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: foodItem['category'],
+                                  initialValue:
+                                      stringCleaner(foodItem['category']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -179,7 +172,7 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: foodItem['cuisine'],
+                                  initialValue: stringCleaner(foodItem['cuisine']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -190,6 +183,40 @@ class _StoryPageState extends State<StoryPage> {
                                       floatingLabelBehavior:
                                           FloatingLabelBehavior.always,
                                       labelText: "Cuisine",
+                                      labelStyle: TextStyle(
+                                          fontSize: 20, color: Colors.black54)),
+                                ),
+                              ),
+                            ),
+                            // Prep + Cook time
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 20.0, top: 8),
+                              child: SizedBox(
+                                // height: 60,
+                                child: TextFormField(
+                                  initialValue: stringCleaner(foodItem['tags']),
+                                  showCursor: false,
+                                  enabled: true,
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.purple[900]),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.purple[900]),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.purple[900]),
+                                      ),
+                                      // hintText: "Breakfast",
+                                      floatingLabelBehavior:
+                                          FloatingLabelBehavior.always,
+                                      // fillColor: Colors.purple[900],
+                                      labelText: "Tags",
                                       labelStyle: TextStyle(
                                           fontSize: 20, color: Colors.black54)),
                                 ),
@@ -213,6 +240,7 @@ class _StoryPageState extends State<StoryPage> {
                           child: RotatedBox(
                             quarterTurns: 2,
                             child: RatingBar.builder(
+                              // initialRating: double.parse(foodItem['rank'].toString()),
                               initialRating: 3,
                               minRating: 1,
                               glow: false,

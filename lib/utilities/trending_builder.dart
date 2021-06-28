@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import '../utilities/images_helper.dart';
 import 'package:foodenie/pages/story_page.dart';
 
 class TrendingBuilder extends StatelessWidget {
@@ -10,28 +11,6 @@ class TrendingBuilder extends StatelessWidget {
   const TrendingBuilder(
       {Key key, @required this.foodItem, @required this.number})
       : super(key: key);
-
-  Widget progressBuilder(String url) {
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Center(
-          child: SizedBox(
-            width: 50,
-            height: 50,
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes
-                  : null,
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

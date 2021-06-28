@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:foodenie/reccommender.dart';
 import 'package:foodenie/utilities/constants.dart';
 import 'package:foodenie/utilities/reusableCard.dart';
@@ -104,141 +105,192 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0XFF1F125A),
-        leading: GestureDetector(
-          child: Icon(Icons.wb_sunny),
-          onTap: _showMaterialDialog,
-        ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.lime,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        colorActivityOfCard('veg');
-                      });
-                    },
-                    colour: colorOfItem['veg'],
-                    cardChild: ItemCard(
-                      item: 'Veg',
-                      label: FontAwesomeIcons.leaf,
-                    ),
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.lime[100],
+          // appBar: AppBar(
+          //   backgroundColor: Color(0xFF1F125A),
+          //   leading: GestureDetector(
+          //     child: Icon(Icons.wb_sunny),
+          //     onTap: _showMaterialDialog,
+          //   ),
+          // ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+                child: Text(
+                  "Select your preferences",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    // decoration: TextDecoration.overline,
+                    // decorationThickness: 3,
+                    fontWeight: FontWeight.w200,
                   ),
                 ),
-                Expanded(
-                  child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        colorActivityOfCard('nonVeg');
-                      });
-                    },
-                    colour: colorOfItem['nonVeg'],
-                    cardChild: ItemCard(
-                      item: 'Non-Veg',
-                      label: FontAwesomeIcons.drumstickBite,
+              ),
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ReusableCard(
+                        onPress: () {
+                          setState(() {
+                            colorActivityOfCard('veg');
+                          });
+                        },
+                        colour: colorOfItem['veg'],
+                        cardChild: ItemCard(
+                          item: 'Veg',
+                          label: FontAwesomeIcons.leaf,
+                        ),
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: ReusableCard(
+                        onPress: () {
+                          setState(() {
+                            colorActivityOfCard('nonVeg');
+                          });
+                        },
+                        colour: colorOfItem['nonVeg'],
+                        cardChild: ItemCard(
+                          item: 'Non-Veg',
+                          label: FontAwesomeIcons.drumstickBite,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ReusableCard(
+                        onPress: () {
+                          setState(() {
+                            colorActivityOfCard('diet');
+                          });
+                        },
+                        colour: colorOfItem['diet'],
+                        cardChild: ItemCard(
+                          item: 'Diet',
+                          label: FontAwesomeIcons.dumbbell,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ReusableCard(
+                        onPress: () {
+                          setState(() {
+                            colorActivityOfCard('snacks');
+                          });
+                        },
+                        colour: colorOfItem['snacks'],
+                        cardChild: ItemCard(
+                          item: 'Snacks',
+                          label: FontAwesomeIcons.coffee,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ReusableCard(
+                        onPress: () {
+                          setState(() {
+                            colorActivityOfCard('sweets');
+                          });
+                        },
+                        colour: colorOfItem['sweets'],
+                        cardChild: ItemCard(
+                          item: 'Sweets',
+                          label: FontAwesomeIcons.cookie,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ReusableCard(
+                        onPress: () {
+                          setState(() {
+                            colorActivityOfCard('beverages');
+                          });
+                        },
+                        colour: colorOfItem['beverages'],
+                        cardChild: ItemCard(
+                          item: 'Beverages',
+                          label: FontAwesomeIcons.glassMartini,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: TextButton(
+                      onPressed: () async {
+                        List<String> selectedName = [];
+                        setState(() {
+                          for (int i = 0; i < colorOfItem.length; i++) {
+                            if (colorOfItem[itemNames[i]] == activeColor) {
+                              selectedName.add(itemNames[i]);
+                            }
+                          }
+                          // print(colorOfItem.containsValue(activeColor));
+                          print(selectedName);
+                        });
+                        var doc = await user.doc(fbUid).get();
+                        user.doc(doc.id).update({
+                          'prefs': FieldValue.arrayUnion(
+                              selectedName.isEmpty ? itemNames : selectedName)
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        "submit",
+                        style:
+                            TextStyle(color: Colors.purple[900], fontSize: 16),
+                      )),
+                ),
+              )
+              // BottomButton(
+              //   title: 'Submit',
+              //   ontap: () async {
+              //     List<String> selectedName = [];
+              //     setState(() {
+              //       for (int i = 0; i < colorOfItem.length; i++) {
+              //         if (colorOfItem[itemNames[i]] == activeColor) {
+              //           selectedName.add(itemNames[i]);
+              //         }
+              //       }
+              //       // print(colorOfItem.containsValue(activeColor));
+              //       print(selectedName);
+              //     });
+              //     var doc = await user.doc(fbUid).get();
+              //     user.doc(doc.id).update({
+              //       'prefs': FieldValue.arrayUnion(
+              //           selectedName.isEmpty ? itemNames : selectedName)
+              //     });
+              //     Navigator.of(context).pop();
+              //   },
+              // ),
+            ],
           ),
-          Expanded(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        colorActivityOfCard('diet');
-                      });
-                    },
-                    colour: colorOfItem['diet'],
-                    cardChild: ItemCard(
-                      item: 'Diet',
-                      label: FontAwesomeIcons.dumbbell,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        colorActivityOfCard('snacks');
-                      });
-                    },
-                    colour: colorOfItem['snacks'],
-                    cardChild: ItemCard(
-                      item: 'Snacks',
-                      label: FontAwesomeIcons.coffee,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        colorActivityOfCard('sweets');
-                      });
-                    },
-                    colour: colorOfItem['sweets'],
-                    cardChild: ItemCard(
-                      item: 'Sweets',
-                      label: FontAwesomeIcons.cookie,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ReusableCard(
-                    onPress: () {
-                      setState(() {
-                        colorActivityOfCard('beverages');
-                      });
-                    },
-                    colour: colorOfItem['beverages'],
-                    cardChild: ItemCard(
-                      item: 'Beverages',
-                      label: FontAwesomeIcons.glassMartini,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          BottomButton(
-            title: 'Submit',
-            ontap: () async {
-              List<String> selectedName = [];
-              setState(() {
-                for (int i = 0; i < colorOfItem.length; i++) {
-                  if (colorOfItem[itemNames[i]] == activeColor) {
-                    selectedName.add(itemNames[i]);
-                  }
-                }
-                // print(colorOfItem.containsValue(activeColor));
-                print(selectedName);
-              });
-              var doc = await user.doc(fbUid).get();
-              user.doc(doc.id).update({
-                'prefs': FieldValue.arrayUnion(
-                    selectedName.isEmpty ? itemNames : selectedName)
-              });
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

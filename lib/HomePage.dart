@@ -1,19 +1,19 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/initFoods.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'reccommender.dart';
 import 'package:foodenie/pages/loading.dart';
 import "package:story_view/story_view.dart";
 import 'pages/story_page.dart';
-import 'api_key.dart';
-import 'utilities/places_api.dart';
+import 'utilities/background_tasks.dart';
 import 'utilities/notifications.dart';
 import 'utilities/images_helper.dart';
 import 'pages/meal_timings.dart';
@@ -37,8 +37,9 @@ class _HomePageState extends State<HomePage> {
   var link;
   Size get getScreenSize => MediaQuery.of(context).size;
   Auth get auth => widget.auth;
-  Map<String, dynamic> userObj = {};
+  //Map<String, dynamic> userObj = {};
   List<dynamic> prefs = [];
+  int count = 0;
   List<dynamic> recFoods = [
 /*     {
       'category': 'Poha s',
@@ -69,6 +70,7 @@ class _HomePageState extends State<HomePage> {
   List<StoryItem> storyFoods = [];
   List<Widget> trendingItems = [];
   String mealTime = "";
+  List<String> imagesAll = [];
 
   List<Map<String, dynamic>> popUpMenuItems = [
     {"option": "Signout"},
@@ -90,51 +92,126 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<bool> initRecommend() {
+  Future<bool> initRecommend() async {
     bool res;
     if (!isLoading) setLoading = true;
-    recommend().then((value) {
+    await recommend().then((value) async {
       if (value == null || value.isEmpty) {
         setLoadSuccess = false;
       } else {
         recFoods = value['result'];
+        print(recFoods);
         for (var i = 0; i < recFoods.length; i++) {
           var foodItem = recFoods[i];
-          recFoods[i]['link'] = getLink(
-              foodItem['diet'], foodItem['course'], foodItem['recipe_title']);
+          // print("Recomm leng: ${recFoods.length}");
+          await ImagesHelper().getImage(foodItem['recipe_title']).then((value) {
+            setState(() {
+              imagesAll.add(value);
+              // print("imgs leng: ${imagesAll.length}");
+
+              recFoods[i]['link'] = value;
+              // print("${recFoods[i]['link']}" + " index = $i");
+              count++;
+              // print(count);
+              if (count == recFoods.length && count == imagesAll.length) {
+                storyFoods = recFoods
+                    .map((foodItem) => generateStoryItem(foodItem))
+                    .toList();
+                setLoadSuccess = true;
+              }
+            });
+          });
         }
-        /* print('items');
-        recFoods.forEach((element) {
-          print(element);
-        });
-        print('trending');
-        trendingItems.forEach((element) {
-          print(element);
-        }); */
-        storyFoods =
-            recFoods.map((foodItem) => generateStoryItem(foodItem)).toList();
-        setLoadSuccess = true;
       }
-      setLoading = false;
       res = true;
     }).catchError((e) {
-      setLoading = false;
       setLoadSuccess = false;
       res = false;
     });
     return Future.value(res);
   }
 
+  int i = 0;
+  StoryItem generateStoryItem(Map<String, dynamic> foodItem) {
+    return StoryItem(
+        GestureDetector(
+          onVerticalDragUpdate: (details) {
+            i += 1;
+            if (i == 1) {
+              controller.pause();
+              Navigator.of(context)
+                  .push(MaterialPageRoute(
+                      builder: (context) => StoryPage(foodItem)))
+                  .then((value) {
+                i = 0;
+                controller.play();
+              });
+            }
+          },
+          child: StoryItem.inlineImage(
+            url: foodItem['link'] != null
+                ? foodItem['link']
+                : "https://visualmodo.com/wp-content/uploads/2019/11/How-To-Add-a-Loading-Animation-to-your-WordPress-Website.png",
+            controller: controller,
+            caption: Text(
+              foodItem['recipe_title'],
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                backgroundColor: Colors.black54,
+                fontSize: 17,
+              ),
+            ),
+          ).view,
+        ),
+        duration: Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    count = 0;
+
+    super.dispose();
+  }
+
   @override
   void initState() {
+    // checkTimings();
+    checkMealTime();
+    backgroundRecommendationService();
+    dislikedItems = userObj['disliked'].map((o) => o).toList();
+    // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    // Workmanager().cancelAll();
+
+    // Workmanager().registerOneOffTask("1", backgroundPlacesKey);
+
+    // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", backgroundPlacesKey,);
+
     initRecommend().then((value) {
+      //print(trendingList);
       int i = 1;
-      trendingList.forEach((element) {
+      trendingList.forEach((element) async {
+        String link = await ImagesHelper().getImage(element['recipe_title']);
+        element.update("link", (item) => item = link);
         Widget w = TrendingBuilder(foodItem: element, number: (i++).toString());
         trendingItems.add(w);
-        setState(() {});
+        if (i == 5) {
+          setLoading = false;
+        }
+        /* await ImagesHelper().getImage(element['recipe_title']).then((value) {
+          setState(() {
+            element.update("link", (item) => item = value);
+          });
+          Widget w =
+              TrendingBuilder(foodItem: element, number: (i++).toString());
+          trendingItems.add(w);
+          if (i == 4) {
+            Future.delayed(duration)
+          }
+        }); */
       });
     });
+
     //FirebaseFirestore.instance.collection("food_items").get().then((value) => foodIds=value);
     /*   user.doc(auth.uid).get().then((value) {
       userObj = value.data();
@@ -159,64 +236,6 @@ class _HomePageState extends State<HomePage> {
 
     super.initState();
   }
-
-  int i = 0;
-  StoryItem generateStoryItem(Map<String, dynamic> foodItem) {
-    return StoryItem(
-        GestureDetector(
-          onVerticalDragUpdate: (details) {
-            i += 1;
-            if (i == 1) {
-              controller.pause();
-              Navigator.of(context)
-                  .push(MaterialPageRoute(
-                      builder: (context) => StoryPage(foodItem)))
-                  .then((value) {
-                i = 0;
-                controller.play();
-              });
-            }
-          },
-          child: StoryItem.inlineImage(
-            url: foodItem['link'],
-            controller: controller,
-            caption: Text(
-              foodItem['recipe_title'],
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                backgroundColor: Colors.black54,
-                fontSize: 17,
-              ),
-            ),
-          ).view,
-        ),
-        duration: Duration(seconds: 2));
-  }
-/* 
-  /// to get the current location and the data.
-  @override
-  void initState() {
-    // checkTimings();
-    checkMealTime();
-    // PlacesAPI().getRestaurants();
-    // setState(() {
-    //   link = ImagesHelper().getImage("Kheer");
-    // });
-
-    // Workmanager()
-    //     .initialize(getRestaurantsBackgroundService, isInDebugMode: true);
-    // Workmanager().cancelAll();
-
-    // Workmanager().registerOneOffTask("1", "Foodenie Background Service");
-    // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", "Foodenie Background Service",frequency: Duration(minutes: 15),);
-
-    // final places = new GoogleMapsPlaces(
-    //   apiKey: googlePlacesAPI,
-    // );
-    // print(places);
-    super.initState();
-  } */
 
   checkMealTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -247,10 +266,10 @@ class _HomePageState extends State<HomePage> {
     log(prefs.getInt("lunchMinute").toString(), name: "lunchMinute");
     log(prefs.getInt("dinnerHour").toString(), name: "dinnerHour");
     log(prefs.getInt("dinnerMinute").toString(), name: "dinnerMinute");
-    // log(TimeOfDay(hour: prefs.getInt("breakfastHour"), minute: prefs.getInt("breakfastMinute")).format(context));
   }
 
   Widget reloadPage() {
+    log("Please refresh page.", name: "reloadPage()");
     return Container(
       width: getScreenSize.width,
       height: getScreenSize.height,
@@ -262,11 +281,22 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.refresh_rounded,
-                color: Colors.green, size: getScreenSize.width * 0.5),
+            // Icon(Icons.refresh_rounded,
+            //     color: Colors.green, size: getScreenSize.width * 0.5),
+            // Text(
+            //   'Tap to refresh',
+            //   style: TextStyle(fontSize: 20, color: Colors.green[900]),
+            // )
+            // #Fake it to make it :)
             Text(
-              'Tap to refresh',
+              'Please wait: Loading recommendations',
               style: TextStyle(fontSize: 20, color: Colors.green[900]),
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            Center(
+              child: CircularProgressIndicator(),
             )
           ],
         ),
@@ -276,6 +306,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // foodItems.get().then((value) {
+    //   value.docs.forEach((element) {
+    //     if (element
+    //         .data()['recipe_title']
+    //         .toString()
+    //         .contains("Eat")) {
+    //       print(element.data().toString()+"YEP YEP");
+    //       print(element.id);
+    //     }
+    //   });
+    // });
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.lime,
@@ -427,7 +468,7 @@ class _HomePageState extends State<HomePage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: StoryView(
-                                        /* onVerticalSwipeComplete: (direction) {
+                                          /* onVerticalSwipeComplete: (direction) {
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -435,33 +476,11 @@ class _HomePageState extends State<HomePage> {
                                                     StoryPage(recFoods),
                                               ));
                                         }, */
-                                        repeat: true,
-                                        progressPosition: ProgressPosition.top,
-                                        controller: controller,
-                                        storyItems: storyFoods
-
-                                        /* StoryItem.text(
-                                            title:
-                                                "Hello world!\nHave a look at some great Ghanaian delicacies. I'm sorry if your mouth waters. \n\nTap!",
-                                            backgroundColor: Colors.orange,
-                                            roundedTop: true,
-                                          ),
-                                          StoryItem.inlineImage(
-                                            url:
-                                                "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
-                                            controller: controller,
-                                            caption: Text(
-                                              "Omotuo & Nkatekwan",
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                backgroundColor: Colors.black54,
-                                                fontSize: 17,
-                                              ),
-                                            ),
-                                          ), */
-                                        ,
-                                      ),
+                                          repeat: true,
+                                          progressPosition:
+                                              ProgressPosition.top,
+                                          controller: controller,
+                                          storyItems: storyFoods),
                                     ),
                                     Align(
                                       alignment: Alignment.bottomCenter,

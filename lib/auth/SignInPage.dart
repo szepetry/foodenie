@@ -1,16 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodenie/auth/Auth.dart';
-import 'package:foodenie/initFoods.dart';
 import 'package:foodenie/reccommender.dart';
-import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInPage extends StatefulWidget {
@@ -56,7 +51,8 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.lime[100]
+       // gradient: LinearGradient(colors: [Colors.lime, Colors.lime[300]]),
+        color:Colors.lime[100]
       ),
       height: MediaQuery.of(context).size.height,
       child: Center(
@@ -78,7 +74,8 @@ class _SignInPageState extends State<SignInPage> {
                                 foregroundColor:
                                     MaterialStateProperty.all<Color>(
                                         Colors.white),
-                                        backgroundColor: MaterialStateProperty.all<Color>(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
                                         Colors.purple[900]),
                                 side: MaterialStateProperty.all<BorderSide>(
                                     BorderSide(color: Colors.black))),
@@ -132,7 +129,10 @@ class _SignInPageState extends State<SignInPage> {
                                   width: 20,
                                   height: 20,
                                 ),
-                                Text('Sign in with Google',style: TextStyle(color: Colors.white),),
+                                Text(
+                                  'Sign in with Google',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                           ),
