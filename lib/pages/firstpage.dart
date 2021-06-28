@@ -254,7 +254,7 @@ class _FirstPageState extends State<FirstPage> {
                           print(selectedName);
                         });
                         var doc = await user.doc(fbUid).get();
-                        user.doc(doc.id).update({
+                        await user.doc(doc.id).update({
                           'prefs': FieldValue.arrayUnion(
                               selectedName.isEmpty ? itemNames : selectedName)
                         });

@@ -34,6 +34,7 @@ class _InitFoodsState extends State<InitFoods> {
       });
 
     List<dynamic> userPrefs = parseList(userObj['prefs']);
+    print(userPrefs);
     this.filtered = allFoodsList.where((element) {
       String diet = element['diet'];
       String course = element['course'];
