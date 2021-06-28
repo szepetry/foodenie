@@ -258,6 +258,7 @@ class _FirstPageState extends State<FirstPage> {
                           'prefs': FieldValue.arrayUnion(
                               selectedName.isEmpty ? itemNames : selectedName)
                         });
+                        userObj = doc.data();
                         Navigator.of(context).pop();
                       },
                       child: Text(

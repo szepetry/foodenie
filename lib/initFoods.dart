@@ -37,7 +37,7 @@ class _InitFoodsState extends State<InitFoods> {
     print(userPrefs);
     this.filtered = allFoodsList.where((element) {
       String diet = element['diet'];
-      String course = element['course'];
+
       if (userPrefs.contains(diet)) {
         return true;
       } else
@@ -45,6 +45,7 @@ class _InitFoodsState extends State<InitFoods> {
     });
     int j = 0;
     int numNonFood = 0;
+    int numVeg = 0;
     for (var i = 0; i < filtered.length; i++) {
       const veg = [
         'Vegetarian',
@@ -57,7 +58,8 @@ class _InitFoodsState extends State<InitFoods> {
       const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
       String dietTemp = filtered.elementAt(i)['diet'];
       print(filtered.elementAt(i)['course']);
-      if (veg.contains(dietTemp)) {
+      if (veg.contains(dietTemp) && numVeg <= 1) {
+        numVeg += 1;
         if (nonFood.contains(filtered.elementAt(i)['course'])) {
           if (numNonFood <= 1) {
             numNonFood += 1;
