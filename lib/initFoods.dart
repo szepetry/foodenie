@@ -17,7 +17,7 @@ class _InitFoodsState extends State<InitFoods> {
   //AIzaSyBIKqeHx-mpDgh3PGohFssylA_XEnM1HIs,068776d7116269ea4
   Size get scSize => MediaQuery.of(context).size;
   List<Map<String, dynamic>> foods = <Map<String, dynamic>>[];
-  List<Map<String, dynamic>> dbFoods = <Map<String, dynamic>>[];
+  //List<Map<String, dynamic>> dbFoods = <Map<String, dynamic>>[];
   bool isVeg = false;
   bool isLoading = true;
   bool isButtonLoading = false;
@@ -38,14 +38,12 @@ class _InitFoodsState extends State<InitFoods> {
       String diet = element['diet'];
       String course = element['course'];
       if (userPrefs.contains(diet)) {
-        if (userPrefs.contains(course))
-          return true;
-        else
-          return false;
+        return true;
       } else
         return false;
     });
     int j = 0;
+    int numNonFood = 0;
     for (var i = 0; i < filtered.length; i++) {
       const veg = [
         'Vegetarian',
@@ -53,11 +51,22 @@ class _InitFoodsState extends State<InitFoods> {
         'High Protein Vegetarian',
         'Vegan'
       ];
+      const nonFood = ['Snack', 'Dessert'];
+
       const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
       String dietTemp = filtered.elementAt(i)['diet'];
+      print(filtered.elementAt(i)['course']);
       if (veg.contains(dietTemp)) {
-        foods.add(filtered.elementAt(i));
-        j++;
+        if (nonFood.contains(filtered.elementAt(i)['course'])) {
+          if (numNonFood <= 1) {
+            numNonFood += 1;
+            foods.add(filtered.elementAt(i));
+            j++;
+          }
+        } else {
+          foods.add(filtered.elementAt(i));
+          j++;
+        }
       } else if (nonVeg.contains(filtered.elementAt(i))) {
         foods.add(filtered.elementAt(i));
         j++;
@@ -115,7 +124,7 @@ class _InitFoodsState extends State<InitFoods> {
 
   void getSimilar(String cuisine, String diet, String category) {
     int i = 0;
-    for (var e in dbFoods) {
+    for (var e in filtered) {
       if (i <= 2) {
         if (e['cuisine'] == cuisine && e['diet'] == diet ||
             e['diet'] == diet && e['category'] == category ||
@@ -133,7 +142,9 @@ class _InitFoodsState extends State<InitFoods> {
                 e['link'] = value;
               });
             }).then((value) {
-              foods.add(e);
+              setState(() {
+                foods.add(e);
+              });
               i++;
             });
           }

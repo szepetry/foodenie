@@ -95,7 +95,7 @@ class Reccommend {
     return res.toSet().toList();
   }
 
-  List<dynamic> timeFilteredList(List<dynamic> prefs, {bool isTimeRec}) {
+  static List<dynamic> timeFilteredList(List<dynamic> prefs, {bool isTimeRec}) {
     if (isTimeRec) {
       prefs.remove('Snack');
       prefs.remove('Dessert');
@@ -178,6 +178,20 @@ class Reccommend {
         {"temperature": temperature, "weather": weather.trim()});
   }
 
+  /*  static List<dynamic> timeFilteredList(List<dynamic> prefs, {bool isTimeRec}) {
+  if (isTimeRec) {
+    prefs.remove('Snack');
+    prefs.remove('Dessert');
+    //Iterable<dynamic> items = ['Indian Breakfast', 'Main Course', 'Dinner'];
+    prefs.add('Indian Breakfast');
+    prefs.add('Main Course');
+    prefs.add('Dinner');
+    return prefs;
+  }
+  print(prefs);
+  return prefs;
+} */
+
   static Future<Map<String, dynamic>> recommend() async {
     var result;
     http.Response res;
@@ -189,15 +203,16 @@ class Reccommend {
       token = (await account.authentication).idToken;
     }
     String fbUid = FirebaseAuth.instance.currentUser.uid;
+    var userObj = (await user.doc(fbUid).get()).data();
+    List<dynamic> likedItems = [];
     userObj['liked'].forEach((ref) async {
       var item = await ref.get();
       likedItems.add(item.data());
     });
     List<dynamic> userPrefs = parseList(userObj['prefs']);
-
     bool isTimeRec = await checkTimeRec();
 
-    // userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
+    userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
     Iterable<Map<String, dynamic>> filtered = allFoodsList.where((element) {
       String diet = element['diet'];
       String course = element['course'];
