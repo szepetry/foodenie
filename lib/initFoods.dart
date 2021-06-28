@@ -56,8 +56,7 @@ class _InitFoodsState extends State<InitFoods> {
       const nonFood = ['Snack', 'Dessert'];
 
       const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
-      String dietTemp = filtered.elementAt(i)['diet'];
-      print(filtered.elementAt(i)['course']);
+      String dietTemp = allFoodsList.elementAt(i)['diet'];
       if (veg.contains(dietTemp) && numVeg <= 1) {
         numVeg += 1;
         if (nonFood.contains(filtered.elementAt(i)['course'])) {

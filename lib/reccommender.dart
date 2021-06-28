@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/utilities/background_tasks.dart';
+import 'package:foodenie/utilities/notifications.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
@@ -191,7 +192,7 @@ class Reccommend {
   return prefs;
 } */
 
-  static Future<Map<String, dynamic>> recommend() async {
+  static Future<void> recommend() async {
     var result;
     http.Response res;
     String token;
@@ -212,7 +213,7 @@ class Reccommend {
     bool isTimeRec = await checkTimeRec();
     userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
     List<Map<String, dynamic>> allFoodsList =
-        (await foodItems.get()).docs.map((e) => e.data());
+        (await foodItems.get()).docs.map((e) => e.data()).toList();
     Iterable<Map<String, dynamic>> filtered = allFoodsList.where((element) {
       String diet = element['diet'];
       String course = element['course'];
@@ -240,10 +241,11 @@ class Reccommend {
         i++;
       }
     });
+    /* 
     trendingList = filtered.take(4).map((e) {
       e.addAll({'link': getLink(e['diet'], e['course'], e['recipe_title'])});
       return e;
-    }).toList();
+    }).toList(); */
 
     var weatherData = await getWeatherData();
     print(weatherData);
@@ -267,13 +269,20 @@ class Reccommend {
         throw new Error();
       } else {
         result = json.decode(res.body);
+        var i1 = result['result'][0]['recipe_title'];
+        var i2 = result['result'][1]['recipe_title'];
+        var i3 = result['result'][2]['recipe_title'];
+        await NotificationService().init();
+
+        NotificationService().showNotification(
+            "Foodenie", "Try out $i1, $i2 and $i3 in your area");
         print(result);
-        return result;
+        //return result;
       }
     } catch (e) {
-      print(res);
+      //print(res);
       print(e);
-      return result;
+      //return result;
     }
   }
 }

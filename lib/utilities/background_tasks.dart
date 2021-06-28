@@ -5,6 +5,7 @@ import "package:google_maps_webservice/places.dart";
 import 'package:geolocator/geolocator.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:foodenie/reccommender.dart';
 import 'dart:developer';
 import 'dart:async';
 
@@ -18,12 +19,16 @@ const dinnerKey = "dinnerTask";
 const backgroundPlacesKey = "backgroundPlacesTask";
 
 backgroundRecommendationService() async {
-  await AndroidAlarmManager.periodic(Duration(minutes: 1), 1, recommender,
-      startAt: DateTime(DateTime.now().year, DateTime.now().month,
-          DateTime.now().day, 14, 54),);
+  await AndroidAlarmManager.periodic(
+    Duration(minutes: 1),
+    1,
+    Reccommend.recommend,
+    startAt: DateTime(
+        DateTime.now().year, DateTime.now().month, DateTime.now().day, 14, 54),
+  );
 }
 
-recommender(){
+recommender() {
   print("I can run :)");
 }
 
@@ -34,7 +39,6 @@ recommender(){
 //    NotificationService().showNotification("Foodenie",
 //                   "Try out ${value.results[0].name}, ${value.results[2].name} and ${value.results[3].name} in your area");
 
-  
 //   await recommend().then((value) => print("YEP"));
 // }
 

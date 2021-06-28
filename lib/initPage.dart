@@ -41,6 +41,7 @@ class _InitPageState extends State<InitPage> {
 
     user.doc(widget.auth.uid).get().then((value) async {
       userObj = value.data();
+      print(userObj);
 
       //
       var fdDocs = await foodItems.orderBy('rank', descending: true).get();

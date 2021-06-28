@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
         for (var i = 0; i < recFoods.length; i++) {
           var foodItem = recFoods[i];
           // print("Recomm leng: ${recFoods.length}");
-          await ImagesHelper().getImage(foodItem['recipe_title']).then((value) {
+          ImagesHelper().getImage(foodItem['recipe_title']).then((value) {
             setState(() {
               imagesAll.add(value);
               // print("imgs leng: ${imagesAll.length}");
