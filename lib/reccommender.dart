@@ -63,7 +63,6 @@ CollectionReference user = FirebaseFirestore.instance.collection('users');
 CollectionReference foodItems =
     FirebaseFirestore.instance.collection('food_items');
 List<dynamic> likedItems = [];
-List<dynamic> dislikedItems = [];
 
 class Reccommend {
   static List<String> parseList(List<dynamic> userPrefs) {
@@ -211,8 +210,9 @@ class Reccommend {
     });
     List<dynamic> userPrefs = parseList(userObj['prefs']);
     bool isTimeRec = await checkTimeRec();
-
     userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
+    List<Map<String, dynamic>> allFoodsList =
+        (await foodItems.get()).docs.map((e) => e.data());
     Iterable<Map<String, dynamic>> filtered = allFoodsList.where((element) {
       String diet = element['diet'];
       String course = element['course'];

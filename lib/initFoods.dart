@@ -32,7 +32,7 @@ class _InitFoodsState extends State<InitFoods> {
       setState(() {
         isLoading = true;
       });
-
+    //var tempObj = (await user.doc(fbUid).get())
     List<dynamic> userPrefs = parseList(userObj['prefs']);
     print(userPrefs);
     this.filtered = allFoodsList.where((element) {

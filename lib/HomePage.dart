@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
     // checkTimings();
     checkMealTime();
     backgroundRecommendationService();
-    dislikedItems = userObj['disliked'].map((o) => o).toList();
+    //dislikedItems = userObj['disliked'].map((o) => o).toList();
     // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     // Workmanager().cancelAll();
 

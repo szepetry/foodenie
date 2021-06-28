@@ -253,12 +253,15 @@ class _FirstPageState extends State<FirstPage> {
                           // print(colorOfItem.containsValue(activeColor));
                           print(selectedName);
                         });
-                        var doc = await user.doc(fbUid).get();
-                        await user.doc(doc.id).update({
+                        DocumentSnapshot doc = await user.doc(fbUid).get();
+
+                        await doc.reference.update({
                           'prefs': FieldValue.arrayUnion(
                               selectedName.isEmpty ? itemNames : selectedName)
                         });
-                        userObj = doc.data();
+                        userObj['prefs'] =
+                            (await doc.reference.get()).data()['prefs'];
+                        print(userObj);
                         Navigator.of(context).pop();
                       },
                       child: Text(
