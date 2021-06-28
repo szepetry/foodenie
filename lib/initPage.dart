@@ -24,6 +24,46 @@ class _InitPageState extends State<InitPage> {
   int currentPage = 0;
   bool isLoading = true;
   PageController ipController = PageController(initialPage: 0);
+
+  initializeFoodItems() async {
+    await user.doc(widget.auth.uid).get().then((value) async {
+      setState(() {
+        userObj = value.data();
+      });
+
+      //
+      await foodItems.orderBy('rank', descending: true).get().then((fdDocs) {
+        setState(() {
+          allFoodsList = fdDocs.docs.map((e) => e.data()).toList();
+        });
+      }).then((value) {
+        Widget w0 = HomePage(widget.auth);
+        if (userObj['isSetupDone'] != true) {
+          Widget w1 = LoadingPage(scrollNext);
+          Widget w2 = MealTimings(scrollNext);
+          Widget w3 = InitFoods(scrollNext);
+          pages.addAll([w1, w2, w3, w0]);
+        } else {
+          pages.add(w0);
+        }
+
+        setState(() {
+          isLoading = false;
+        });
+      });
+
+      /* List<String> temp = [];
+      allFoodsList.forEach((element) {
+        if (!temp.contains(element['course'])) {
+          temp.add(element['course']);
+        }
+      });
+      temp.forEach((element) {
+        print(element);
+      }); */
+    });
+  }
+
   @override
   void initState() {
     /* FirebaseFirestore.instance.collection('users').get().then((value) {
@@ -38,36 +78,8 @@ class _InitPageState extends State<InitPage> {
       setState(() {
         isLoading = true;
       });
+    initializeFoodItems().then((value) {});
 
-    user.doc(widget.auth.uid).get().then((value) async {
-      userObj = value.data();
-
-      //
-      var fdDocs = await foodItems.orderBy('rank', descending: true).get();
-      allFoodsList = fdDocs.docs.map((e) => e.data()).toList();
-      /* List<String> temp = [];
-      allFoodsList.forEach((element) {
-        if (!temp.contains(element['course'])) {
-          temp.add(element['course']);
-        }
-      });
-      temp.forEach((element) {
-        print(element);
-      }); */
-      Widget w0 = HomePage(widget.auth);
-      if (userObj['isSetupDone'] != true) {
-        Widget w1 = LoadingPage(scrollNext);
-        Widget w2 = MealTimings(scrollNext);
-        Widget w3 = InitFoods(scrollNext);
-        pages.addAll([w1, w2, w3, w0]);
-      } else {
-        pages.add(w0);
-      }
-
-      setState(() {
-        isLoading = false;
-      });
-    });
     /* ipController.addListener(() {
       setState(() {
         currentPage = ipController.page;

@@ -188,17 +188,22 @@ class _HomePageState extends State<HomePage> {
     // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", backgroundPlacesKey,);
 
     initRecommend().then((value) {
-      print(trendingList[0]['food_ID']);
+      // print(trendingList[0]['food_ID']);
       int i = 1;
       trendingList.forEach((element) {
         ImagesHelper().getImage(element['recipe_title']).then((value) {
-          element.update("link", (item) => item = value);
+          setState(() {
+            element.update("link", (item) => item = value);
+          });
+        }).then((value) {
           Widget w =
               TrendingBuilder(foodItem: element, number: (i++).toString());
           trendingItems.add(w);
 
           if (i == 5) {
-            setLoading = false;
+            setState(() {
+              setLoading = false;
+            });
           }
         });
 
