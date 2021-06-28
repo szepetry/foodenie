@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/utilities/background_tasks.dart';
 import 'package:http/http.dart' as http;
@@ -63,6 +64,205 @@ CollectionReference foodItems =
     FirebaseFirestore.instance.collection('food_items');
 List<dynamic> likedItems = [];
 List<dynamic> dislikedItems = [];
+
+class Reccommend {
+  static List<String> parseList(List<dynamic> userPrefs) {
+    List<String> res = [];
+    userPrefs.forEach((element) {
+      switch (element) {
+        case 'veg':
+          res.addAll([
+            'Vegetarian',
+            'High Protein Vegetarian',
+            'Eggetarian',
+            'Vegan',
+            'No Onion No Garlic (Sattvic)'
+          ]);
+          break;
+        case 'nonVeg':
+          res.addAll(['Non Vegeterian', 'High Protein Non Vegetarian']);
+          break;
+        case 'diet':
+          res.addAll(
+              ['Gluten Free', 'High Protein Vegetarian', 'Diabetic Friendly']);
+          break;
+        case 'snacks':
+        case 'sweets':
+        case 'beverages':
+          res.addAll(['Snack', 'Dessert']);
+      }
+    });
+    return res.toSet().toList();
+  }
+
+  List<dynamic> timeFilteredList(List<dynamic> prefs, {bool isTimeRec}) {
+    if (isTimeRec) {
+      prefs.remove('Snack');
+      prefs.remove('Dessert');
+      //Iterable<dynamic> items = ['Indian Breakfast', 'Main Course', 'Dinner'];
+      prefs.add('Indian Breakfast');
+      prefs.add('Main Course');
+      prefs.add('Dinner');
+      return prefs;
+    }
+    print(prefs);
+    return prefs;
+  }
+
+  static String getLink(String diet, String course, String name) {
+    math.Random rand = new math.Random();
+    if (name.toLowerCase().contains('egg')) {
+      int idx = rand.nextInt(eggFoods.length);
+      return eggFoods[idx];
+    }
+    if (name.toLowerCase().contains('paneer')) {
+      int idx = rand.nextInt(paneerFoods.length);
+      return paneerFoods[idx];
+    }
+    if (course != null) {
+      if (course.toLowerCase().contains('snack') ||
+          course.toLowerCase().contains('dessert')) {
+        int idx = rand.nextInt(snacks.length);
+        return snacks[idx];
+      }
+    }
+    if (diet.contains('Non')) {
+      int idx = rand.nextInt(nonVegFoods.length);
+
+      return nonVegFoods[idx];
+    } else {
+      int idx = rand.nextInt(vegFoods.length);
+      return vegFoods[idx];
+    }
+  }
+
+  static bool checkTiming(DateTime now, DateTime foodTime) {
+    bool res = now.isBefore(foodTime.add(Duration(minutes: 120))) &&
+        now.isAfter(foodTime.subtract(Duration(minutes: 120)));
+    return res;
+  }
+
+  static Future<bool> checkTimeRec() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DateTime now = new DateTime.now();
+    int bfHour = prefs.getInt('breakfastHour');
+    int bfMin = prefs.getInt('breakfastMinute');
+    DateTime bf = new DateTime(now.year, now.month, now.day, bfHour, bfMin);
+    int lnHr = prefs.getInt('lunchHour');
+    int lnMin = prefs.getInt('lunchMinute');
+    DateTime lnch = new DateTime(now.year, now.month, now.day, lnHr, lnMin);
+    int dnHr = prefs.getInt('dinnerHour');
+    int dnMin = prefs.getInt('dinnerMinute');
+    DateTime dinr = new DateTime(now.year, now.month, now.day, dnHr, dnMin);
+    if (checkTiming(now, dinr) ||
+        checkTiming(now, lnch) ||
+        checkTiming(now, bf))
+      return Future.value(true);
+    else
+      return Future.value(false);
+  }
+
+  static Future<Map<String, dynamic>> getWeatherData() async {
+    dynamic data = await PlacesAPI().getWeatherData();
+    int tempNum = double.parse(data['main']['temp'].toString()).round();
+    String weather = data['weather'][0]['main'].toString();
+    String temperature = "";
+    if (tempNum > 28) {
+      temperature = "Hot";
+    } else if (tempNum < 28 && tempNum > 20) {
+      temperature = "Normal";
+    } else if (tempNum < 20) {
+      temperature = "Cold";
+    }
+    return Future.value(
+        {"temperature": temperature, "weather": weather.trim()});
+  }
+
+  static Future<Map<String, dynamic>> recommend() async {
+    var result;
+    http.Response res;
+    String token;
+    if (Auth.googleAuthObj.currentUser != null) {
+      token = await Auth.getIdToken;
+    } else {
+      var account = await Auth.gSignIn;
+      token = (await account.authentication).idToken;
+    }
+    String fbUid = FirebaseAuth.instance.currentUser.uid;
+    userObj['liked'].forEach((ref) async {
+      var item = await ref.get();
+      likedItems.add(item.data());
+    });
+    List<dynamic> userPrefs = parseList(userObj['prefs']);
+
+    bool isTimeRec = await checkTimeRec();
+
+    // userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
+    Iterable<Map<String, dynamic>> filtered = allFoodsList.where((element) {
+      String diet = element['diet'];
+      String course = element['course'];
+
+      if (isTimeRec) {
+        if (userPrefs.contains(diet)) {
+          if (userPrefs.contains(course)) {
+            return true;
+          } else
+            return false;
+        } else
+          return false;
+      } else {
+        if (userPrefs.contains(diet))
+          return true;
+        else
+          return false;
+      }
+    });
+    var i = 0;
+    filtered.forEach((element) {
+      if (i <= 3) {
+        print(element['rank']);
+        print(element['recipe_title']);
+        i++;
+      }
+    });
+    trendingList = filtered.take(4).map((e) {
+      e.addAll({'link': getLink(e['diet'], e['course'], e['recipe_title'])});
+      return e;
+    }).toList();
+
+    var weatherData = await getWeatherData();
+    print(weatherData);
+    //filtered.elementAt(0)['food_ID'].toString();
+    try {
+      Object body = jsonEncode({
+        "prefs": userPrefs,
+        "likedItems": likedItems,
+        "weather": weatherData['weather'],
+        "temperature": weatherData['temperature']
+      });
+      Uri url =
+          Uri.parse('$baseUrl' + 'recommend?timeRec=${isTimeRec.toString()}');
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      res = await http.post(url, headers: headers, body: body);
+
+      if (res.statusCode >= 400) {
+        throw new Error();
+      } else {
+        result = json.decode(res.body);
+        print(result);
+        return result;
+      }
+    } catch (e) {
+      print(res);
+      print(e);
+      return result;
+    }
+  }
+}
+
 List<String> parseList(List<dynamic> userPrefs) {
   List<String> res = [];
   userPrefs.forEach((element) {
@@ -121,10 +321,6 @@ List<dynamic> timeFilteredList(List<dynamic> prefs, {bool isTimeRec}) {
   }
   print(prefs);
   return prefs;
-}
-
-bool isTimeRec(bool bf, bool lnch, bool dinr) {
-  return bf || lnch || dinr;
 }
 
 String getLink(String diet, String course, String name) {
@@ -299,6 +495,8 @@ Future<void> rateFood({DocumentReference ref, bool isLike, int foodId}) async {
     });
   }
 }
+
+Future<void> notificationReccommend() {}
 
 /* Future<void> updatePrefs(int foodId) async {
   await foodItems.where('food_ID',isEqualTo: foodId).get().then((value){

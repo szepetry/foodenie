@@ -10,6 +10,9 @@ class Auth {
   static GoogleSignIn googleAuthObj = GoogleSignIn();
   static Stream<GoogleSignInAuthentication> get googleAuthStream =>
       googleAuthObj.currentUser.authentication.asStream();
+  static Future<String> get getIdToken async =>
+      (await googleAuthObj.currentUser.authentication).idToken;
+
   static Future<GoogleSignInAccount> get gSignIn => googleAuthObj.signIn();
   static Future<Map<String, dynamic>> signInWithGoogle() async {
     googleUser = await GoogleSignIn().signIn();
@@ -46,7 +49,7 @@ class AppUser {
         "phoneNumber": phoneNumber,
         "email": email,
         "isSetupDone": false,
-        "liked":[],
-        "disliked":[]
+        "liked": [],
+        "disliked": []
       };
 }

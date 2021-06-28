@@ -33,7 +33,52 @@ class _InitFoodsState extends State<InitFoods> {
         isLoading = true;
       });
 
-    FirebaseFirestore.instance
+    List<dynamic> userPrefs = parseList(userObj['prefs']);
+    this.filtered = allFoodsList.where((element) {
+      String diet = element['diet'];
+      String course = element['course'];
+      if (userPrefs.contains(diet)) {
+        if (userPrefs.contains(course))
+          return true;
+        else
+          return false;
+      } else
+        return false;
+    });
+    int j = 0;
+    for (var i = 0; i < filtered.length; i++) {
+      const veg = [
+        'Vegetarian',
+        'Eggetarian',
+        'High Protein Vegetarian',
+        'Vegan'
+      ];
+      const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
+      String dietTemp = filtered.elementAt(i)['diet'];
+      if (veg.contains(dietTemp)) {
+        foods.add(filtered.elementAt(i));
+        j++;
+      } else if (nonVeg.contains(filtered.elementAt(i))) {
+        foods.add(filtered.elementAt(i));
+        j++;
+      }
+      if (j == 5) break;
+    }
+    setState(() {
+      // Work here
+      for (var i = 0; i < foods.length; i++) {
+        foods[i]['selected'] = false;
+        foods[i]['link'] =
+            "https://miro.medium.com/max/1400/1*MyAk_JfQZqzCF8qIIoWF5A.png";
+        ImagesHelper().getImage(foods[i]['recipe_title']).then((value) {
+          setState(() {
+            foods[i]['link'] = value;
+          });
+        });
+      }
+    });
+
+    /*  FirebaseFirestore.instance
         .collection('food_items')
         .where('diet',
             whereIn: isVeg
@@ -41,52 +86,9 @@ class _InitFoodsState extends State<InitFoods> {
                 : null /* isVeg ? ['Vegetarian', 'High Protein Vegetarian'] : null */)
         .get()
         .then((value) {
-      dbFoods = value.docs.map((e) => e.data()).toList();
-      List<dynamic> userPrefs = parseList(userObj['prefs']);
-      this.filtered = allFoodsList.where((element) {
-        String diet = element['diet'];
-        String course = element['course'];
-        if (userPrefs.contains(diet)) {
-          if (userPrefs.contains(course))
-            return true;
-          else
-            return false;
-        } else
-          return false;
-      });
-      int j = 0;
-      for (var i = 0; i < filtered.length; i++) {
-        const veg = [
-          'Vegetarian',
-          'Eggetarian',
-          'High Protein Vegetarian',
-          'Vegan'
-        ];
-        const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
-        String dietTemp = filtered.elementAt(i)['diet'];
-        if (veg.contains(dietTemp)) {
-          foods.add(filtered.elementAt(i));
-          j++;
-        } else if (nonVeg.contains(filtered.elementAt(i))) {
-          foods.add(filtered.elementAt(i));
-          j++;
-        }
-        if (j == 5) break;
-      }
-      setState(() {
-        // Work here
-        for (var i = 0; i < foods.length; i++) {
-          foods[i]['selected'] = false;
-          foods[i]['link'] =
-              "https://miro.medium.com/max/1400/1*MyAk_JfQZqzCF8qIIoWF5A.png";
-          ImagesHelper().getImage(foods[i]['recipe_title']).then((value) {
-            setState(() {
-              foods[i]['link'] = value;
-            });
-          });
-        }
-      });
-    });
+      //dbFoods = value.docs.map((e) => e.data()).toList();
+     
+    }); */
     setState(() {
       isLoading = false;
     });
