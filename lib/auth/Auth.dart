@@ -8,15 +8,14 @@ class Auth {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static GoogleSignInAccount googleUser;
   static GoogleSignIn googleAuthObj = GoogleSignIn();
-  static Stream<GoogleSignInAuthentication> get googleAuthStream =>
-      googleAuthObj.currentUser.authentication.asStream();
+  static Stream<GoogleSignInAccount> get googleAuthStream =>
+      googleAuthObj.onCurrentUserChanged;
   static Future<String> get getIdToken async =>
       (await googleAuthObj.currentUser.authentication).idToken;
 
   static Future<GoogleSignInAccount> get gSignIn => googleAuthObj.signIn();
   static Future<Map<String, dynamic>> signInWithGoogle() async {
     googleUser = await GoogleSignIn().signIn();
-
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
 
@@ -43,13 +42,15 @@ class AppUser {
   final String name;
   final String phoneNumber;
   final String email;
-  AppUser(this.name, this.phoneNumber, this.email);
+  final String fcmToken;
+  AppUser(this.name, this.phoneNumber, this.email, this.fcmToken);
   Map<String, dynamic> get userDetails => {
         "name": name,
         "phoneNumber": phoneNumber,
         "email": email,
         "isSetupDone": false,
         "liked": [],
-        "disliked": []
+        "disliked": [],
+        "FCMToken": fcmToken
       };
 }

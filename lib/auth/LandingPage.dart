@@ -17,7 +17,23 @@ class LandingPage extends StatelessWidget {
             String uid = snapshot.data.uid;
             Auth auth = Auth(uid);
             fbUid = uid;
-            if (Auth.googleAuthObj.currentUser == null) {
+            return InitPage(auth);
+            /* if (Auth.googleAuthObj.currentUser != null) {
+              return InitPage(auth, Auth.googleAuthObj.currentUser);
+              /* return StreamBuilder<GoogleSignInAuthentication>(
+                stream:
+                    Auth.googleAuthObj.currentUser.authentication.asStream(),
+                builder: (context, snapshot1) {
+                  if (snapshot1.data != null) {
+                    return InitPage(auth, snapshot1.data);
+                  } else {
+                    return SignInPage();
+                  }
+                }); */
+            } else {
+              return SignInPage();
+            } */
+            /* if (Auth.googleAuthObj.currentUser == null) {
               print('current user is null');
               return FutureBuilder<GoogleSignInAccount>(
                   future: Auth.gSignIn,
@@ -66,7 +82,7 @@ class LandingPage extends StatelessWidget {
                     );
                   });
             }
-/* 
+ 
             return StreamBuilder<GoogleSignInAuthentication>(
                 stream: Auth.googleAuthStream,
                 builder: (context, snapshot2) {

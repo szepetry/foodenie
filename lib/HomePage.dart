@@ -104,23 +104,9 @@ class _HomePageState extends State<HomePage> {
         for (var i = 0; i < recFoods.length; i++) {
           var foodItem = recFoods[i];
           // print("Recomm leng: ${recFoods.length}");
-          ImagesHelper().getImage(foodItem['recipe_title']).then((value) {
-            setState(() {
-              imagesAll.add(value);
-              // print("imgs leng: ${imagesAll.length}");
-
-              recFoods[i]['link'] = value;
-              // print("${recFoods[i]['link']}" + " index = $i");
-              count++;
-              // print(count);
-              if (count == recFoods.length && count == imagesAll.length) {
-                storyFoods = recFoods
-                    .map((foodItem) => generateStoryItem(foodItem))
-                    .toList();
-                setLoadSuccess = true;
-              }
-            });
-          });
+          storyFoods =
+              recFoods.map((foodItem) => generateStoryItem(foodItem)).toList();
+          setLoadSuccess = true;
         }
       }
       res = true;
@@ -149,9 +135,7 @@ class _HomePageState extends State<HomePage> {
             }
           },
           child: StoryItem.inlineImage(
-            url: foodItem['link'] != null
-                ? foodItem['link']
-                : "https://visualmodo.com/wp-content/uploads/2019/11/How-To-Add-a-Loading-Animation-to-your-WordPress-Website.png",
+            url: foodItem['imageURL'],
             controller: controller,
             caption: Text(
               foodItem['recipe_title'],
@@ -178,7 +162,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // checkTimings();
     checkMealTime();
-    backgroundRecommendationService();
+    //backgroundRecommendationService();
     //dislikedItems = userObj['disliked'].map((o) => o).toList();
     // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     // Workmanager().cancelAll();
@@ -188,19 +172,17 @@ class _HomePageState extends State<HomePage> {
     // Workmanager().registerPeriodicTask("Foodenie Restaurants Suggestions", backgroundPlacesKey,);
 
     initRecommend().then((value) {
-      print(trendingList[0]['food_ID']);
+      // print(trendingList[0]['food_ID']);
       int i = 1;
       trendingList.forEach((element) {
-        ImagesHelper().getImage(element['recipe_title']).then((value) {
-          element.update("link", (item) => item = value);
-          Widget w =
-              TrendingBuilder(foodItem: element, number: (i++).toString());
-          trendingItems.add(w);
+        Widget w = TrendingBuilder(foodItem: element, number: (i++).toString());
+        trendingItems.add(w);
 
-          if (i == 5) {
+        if (i == 5) {
+          setState(() {
             setLoading = false;
-          }
-        });
+          });
+        }
 
         /* await ImagesHelper().getImage(element['recipe_title']).then((value) {
           setState(() {
@@ -285,14 +267,14 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon(Icons.refresh_rounded,
-            //     color: Colors.green, size: getScreenSize.width * 0.5),
-            // Text(
-            //   'Tap to refresh',
-            //   style: TextStyle(fontSize: 20, color: Colors.green[900]),
-            // )
-            // #Fake it to make it :)
+            Icon(Icons.refresh_rounded,
+                color: Colors.green, size: getScreenSize.width * 0.5),
             Text(
+              'Tap to refresh',
+              style: TextStyle(fontSize: 20, color: Colors.green[900]),
+            )
+
+            /* Text(
               'Please wait: Loading recommendations',
               style: TextStyle(fontSize: 20, color: Colors.green[900]),
             ),
@@ -301,7 +283,7 @@ class _HomePageState extends State<HomePage> {
             ),
             Center(
               child: CircularProgressIndicator(),
-            )
+            ) */
           ],
         ),
       ),

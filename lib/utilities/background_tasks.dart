@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../api_key.dart';
 import 'notifications.dart';
 import 'package:foodenie/weather/network.dart';
@@ -19,17 +21,20 @@ const dinnerKey = "dinnerTask";
 const backgroundPlacesKey = "backgroundPlacesTask";
 
 backgroundRecommendationService() async {
-  await AndroidAlarmManager.periodic(
-    Duration(minutes: 1),
-    1,
-    Reccommend.recommend,
-    startAt: DateTime(
-        DateTime.now().year, DateTime.now().month, DateTime.now().day, 14, 54),
-  );
+  AndroidAlarmManager.cancel(1);
+  /* await AndroidAlarmManager.periodic(
+      Duration(seconds: 20), 1, Reccommend.initNotificationAlert,
+      startAt: DateTime.now().add(Duration(seconds: 10))); */
 }
 
-recommender() {
-  print("I can run :)");
+Future<void> scheduleDayCallbacks() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  DateTime bf = Reccommend.getTiming('BF', prefs);
+  DateTime lnch = Reccommend.getTiming('LNCH', prefs);
+  DateTime dinr = Reccommend.getTiming('DINR', prefs);
+  AndroidAlarmManager.oneShotAt(bf, 2, Reccommend.initNotificationAlert);
+  AndroidAlarmManager.oneShotAt(lnch, 3, Reccommend.initNotificationAlert);
+  AndroidAlarmManager.oneShotAt(dinr, 4, Reccommend.initNotificationAlert);
 }
 
 // void printHello() async{

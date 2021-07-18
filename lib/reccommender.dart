@@ -2,13 +2,14 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:foodenie/auth/Auth.dart';
 import 'package:foodenie/utilities/background_tasks.dart';
 import 'package:foodenie/utilities/notifications.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<String> vegFoods = <String>[
@@ -54,7 +55,8 @@ List<String> snacks = <String>[
   'https://www.dinneratthezoo.com/wp-content/uploads/2018/05/frozen-fruit-smoothie-3.jpg'
 ];
 
-String baseUrl = 'https://us-central1-foodenie.cloudfunctions.net/app/';
+String baseUrl =
+    'http://192.168.0.11:3000/'; //'https://us-central1-foodenie.cloudfunctions.net/app/';
 String token;
 String fbUid;
 Map<String, dynamic> userObj = {};
@@ -65,7 +67,96 @@ CollectionReference foodItems =
     FirebaseFirestore.instance.collection('food_items');
 List<dynamic> likedItems = [];
 
+void initMsgListener() {
+  FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+    print("message recieved");
+    print(event.notification.body);
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((message) {
+    print('Message clicked!');
+  });
+}
+
+Future<String> get getFcmToken async =>
+    await FirebaseMessaging.instance.getToken();
+
 class Reccommend {
+  static String setString(bool bf, bool lnch, bool dinr) {
+    if (bf)
+      return 'BF';
+    else if (lnch)
+      return 'LNCH';
+    else if (dinr) return 'DINR';
+  }
+
+  static Future<void> initNotificationAlert() async {
+    print('trig');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DateTime bf = getTiming('BF', prefs);
+    DateTime lnch = getTiming('LNCH', prefs);
+    DateTime dinr = getTiming('DINR', prefs);
+    DateTime now = DateTime.now();
+    bool isBf = checkTiming(now, bf, 30);
+    bool isLnch = checkTiming(now, lnch, 30);
+    bool isDinr = checkTiming(now, dinr, 30);
+    String timing = setString(isBf, isLnch, isDinr);
+    var weatherData = await getWeatherData();
+    print(weatherData);
+    String weather = weatherData['weather'];
+    String temperature = weatherData['temperature'];
+    await Firebase.initializeApp();
+    User fbUser = FirebaseAuth.instance.currentUser;
+    String fbUid;
+    if (fbUser != null) {
+      fbUid = fbUser.uid;
+    } else {
+      fbUid = prefs.getString('fbUid');
+    }
+    var userRef = await user.doc(fbUid).get();
+    var userObj = userRef.data();
+    List<dynamic> likedItems = [];
+    for (var i = 0; i < userObj['liked'].length; i++) {
+      var item = await userObj['liked'][i].get();
+
+      likedItems.add(item.data());
+    }
+
+    print(likedItems);
+    List<dynamic> userPrefs = parseList(userObj['prefs']);
+    Map<String, dynamic> notificationObj = {
+      "prefs": userPrefs,
+      "likedItems": likedItems,
+      "weather": weather,
+      "temperature": temperature,
+      "timing": timing
+    };
+    await userRef.reference.update({
+      "notification_rec": FieldValue.arrayUnion([notificationObj])
+    });
+    //filtered.elementAt(0)['food_ID'].toString();
+  }
+
+  static DateTime getTiming(String period, SharedPreferences prefs) {
+    DateTime now = DateTime.now();
+    switch (period) {
+      case 'BF':
+        int bfHour = prefs.getInt('breakfastHour');
+        int bfMin = prefs.getInt('breakfastMinute');
+        DateTime bf = new DateTime(now.year, now.month, now.day, bfHour, bfMin);
+        return bf;
+      case 'LNCH':
+        int lnHr = prefs.getInt('lunchHour');
+        int lnMin = prefs.getInt('lunchMinute');
+        DateTime lnch = new DateTime(now.year, now.month, now.day, lnHr, lnMin);
+        return lnch;
+      case 'DINR':
+        int dnHr = prefs.getInt('dinnerHour');
+        int dnMin = prefs.getInt('dinnerMinute');
+        DateTime dinr = new DateTime(now.year, now.month, now.day, dnHr, dnMin);
+        return dinr;
+    }
+  }
+
   static List<String> parseList(List<dynamic> userPrefs) {
     List<String> res = [];
     userPrefs.forEach((element) {
@@ -136,7 +227,7 @@ class Reccommend {
     }
   }
 
-  static bool checkTiming(DateTime now, DateTime foodTime) {
+  static bool checkTiming(DateTime now, DateTime foodTime, int time) {
     bool res = now.isBefore(foodTime.add(Duration(minutes: 120))) &&
         now.isAfter(foodTime.subtract(Duration(minutes: 120)));
     return res;
@@ -154,9 +245,9 @@ class Reccommend {
     int dnHr = prefs.getInt('dinnerHour');
     int dnMin = prefs.getInt('dinnerMinute');
     DateTime dinr = new DateTime(now.year, now.month, now.day, dnHr, dnMin);
-    if (checkTiming(now, dinr) ||
-        checkTiming(now, lnch) ||
-        checkTiming(now, bf))
+    if (checkTiming(now, dinr, 120) ||
+        checkTiming(now, lnch, 120) ||
+        checkTiming(now, bf, 120))
       return Future.value(true);
     else
       return Future.value(false);
@@ -417,14 +508,14 @@ Future<Map<String, dynamic>> recommend() async {
   var result;
   http.Response res;
   print(token);
-  userObj['liked'].forEach((ref) async {
-    var item = await ref.get();
+  for (var i = 0; i < userObj['liked'].length; i++) {
+    var item = await userObj['liked'][i].get();
     likedItems.add(item.data());
-  });
+  }
   List<dynamic> userPrefs = parseList(userObj['prefs']);
 
   bool isTimeRec = await checkTimeRec();
-
+  print(isTimeRec);
   userPrefs = timeFilteredList(userPrefs, isTimeRec: isTimeRec);
   Iterable<Map<String, dynamic>> filtered = allFoodsList.where((element) {
     String diet = element['diet'];
@@ -446,6 +537,7 @@ Future<Map<String, dynamic>> recommend() async {
     }
   });
   var i = 0;
+  print(userPrefs);
   filtered.forEach((element) {
     if (i <= 3) {
       print(element['rank']);
@@ -453,13 +545,11 @@ Future<Map<String, dynamic>> recommend() async {
       i++;
     }
   });
-  trendingList = filtered.take(4).map((e) {
-    e.addAll({'link': getLink(e['diet'], e['course'], e['recipe_title'])});
-    return e;
-  }).toList();
-
+  trendingList = filtered.take(4).map((e) => e).toList();
   var weatherData = await getWeatherData();
   print(weatherData);
+  print('aa');
+  print(likedItems);
   //filtered.elementAt(0)['food_ID'].toString();
   try {
     Object body = jsonEncode({
@@ -474,6 +564,7 @@ Future<Map<String, dynamic>> recommend() async {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
+    print(body);
     res = await http.post(url, headers: headers, body: body);
 
     if (res.statusCode >= 400) {

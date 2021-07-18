@@ -66,8 +66,8 @@ class _StoryPageState extends State<StoryPage> {
               flex: 4,
               child: Padding(
                 padding: const EdgeInsets.only(left: 1, right: 1),
-                child:
-                    SizedBox.expand(child: progressBuilder(foodItem['link'])),
+                child: SizedBox.expand(
+                    child: progressBuilder(foodItem['imageURL'])),
               ),
             ),
             Flexible(
@@ -124,7 +124,8 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: stringCleaner(foodItem['course']),
+                                  initialValue:
+                                      stringCleaner(foodItem['course']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(
@@ -172,7 +173,8 @@ class _StoryPageState extends State<StoryPage> {
                               child: SizedBox(
                                 height: 50,
                                 child: TextFormField(
-                                  initialValue: stringCleaner(foodItem['cuisine']),
+                                  initialValue:
+                                      stringCleaner(foodItem['cuisine']),
                                   showCursor: false,
                                   enabled: false,
                                   decoration: InputDecoration(

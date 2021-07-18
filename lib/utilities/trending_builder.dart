@@ -30,7 +30,7 @@ class TrendingBuilder extends StatelessWidget {
                 Container(
                   height: 100,
                   width: 170,
-                  child: progressBuilder(foodItem['link']),
+                  child: progressBuilder(foodItem['imageURL']),
                 ),
                 Positioned(
                   top: 100,

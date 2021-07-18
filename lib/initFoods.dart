@@ -16,15 +16,85 @@ class InitFoods extends StatefulWidget {
 class _InitFoodsState extends State<InitFoods> {
   //AIzaSyBIKqeHx-mpDgh3PGohFssylA_XEnM1HIs,068776d7116269ea4
   Size get scSize => MediaQuery.of(context).size;
-  List<Map<String, dynamic>> foods = <Map<String, dynamic>>[];
+  List<Map<String, dynamic>> foods = [];
   //List<Map<String, dynamic>> dbFoods = <Map<String, dynamic>>[];
-  bool isVeg = false;
+  bool isVeg;
   bool isLoading = true;
   bool isButtonLoading = false;
   List<Map<String, dynamic>> selected = [];
-  Iterable<Map<String, dynamic>> filtered = [];
+  List<Map<String, dynamic>> filtered = [];
   List<String> imagesAll = [];
   int count = 0;
+
+  bool checkIfVeg(List<dynamic> userPrefs) {
+    List<String> nonVegList = ['High Protein Non Vegetarian', 'Non Vegeterian'];
+    for (var item in nonVegList) {
+      if (userPrefs.contains(item)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<Map<String, dynamic>> getVegItems(List<dynamic> userPrefs) {
+    List<Map<String, dynamic>> res = [];
+    List<String> nonFood = ['Snack', 'Dessert'];
+    bool isSnacky = false;
+    for (var itm in nonFood) {
+      if (userPrefs.contains(itm)) {
+        isSnacky = true;
+      }
+    }
+    int nonFoodNum = isSnacky ? 8 : 0;
+    int foodNum = isSnacky ? 12 : 20;
+    for (var item in filtered) {
+      String course = item['course'];
+      if (nonFoodNum == 0 && foodNum == 0) break;
+      if (nonFood.contains(course) &&
+          userPrefs.contains(course) &&
+          nonFoodNum > 0) {
+        res.add(item);
+        nonFoodNum--;
+      } else if (!nonFood.contains(course) && foodNum > 0) {
+        res.add(item);
+        foodNum--;
+      }
+    }
+    return res;
+  }
+
+  List<Map<String, dynamic>> getNonVegItems(List<dynamic> userPrefs) {
+    List<Map<String, dynamic>> res = [];
+    List<String> nonFood = ['Snack', 'Dessert'];
+    bool isSnacky = false;
+    for (var itm in nonFood) {
+      if (userPrefs.contains(itm)) {
+        isSnacky = true;
+      }
+    }
+    int nonFoodNum = isSnacky ? 8 : 0;
+    int vegFoodNum = isSnacky ? 3 : 5;
+    int nonVegFoodNum = isSnacky ? 9 : 15;
+    for (var item in filtered) {
+      String course = item['course'];
+      if (nonFoodNum == 0 && vegFoodNum == 0 && nonVegFoodNum == 0) break;
+      if (nonFood.contains(course) &&
+          userPrefs.contains(course) &&
+          nonFoodNum > 0) {
+        res.add(item);
+        nonFoodNum--;
+      } else if (!nonFood.contains(course) &&
+          (vegFoodNum > 0 || nonVegFoodNum > 0)) {
+        bool isVeg = checkIfVeg([item['diet']]);
+        if (isVeg)
+          vegFoodNum--;
+        else
+          nonVegFoodNum--;
+        res.add(item);
+      }
+    }
+    return res;
+  }
 
   @override
   void initState() {
@@ -37,13 +107,18 @@ class _InitFoodsState extends State<InitFoods> {
     print(userPrefs);
     this.filtered = allFoodsList.where((element) {
       String diet = element['diet'];
-
       if (userPrefs.contains(diet)) {
         return true;
       } else
         return false;
-    });
-    int j = 0;
+    }).toList();
+    isVeg = checkIfVeg(userPrefs);
+
+    if (isVeg)
+      foods = getVegItems(userPrefs).map((e) => e).toList();
+    else
+      foods = getNonVegItems(userPrefs).map((e) => e).toList();
+    /* int j = 0;
     int numNonFood = 0;
     int numVeg = 0;
     for (var i = 0; i < filtered.length; i++) {
@@ -53,41 +128,36 @@ class _InitFoodsState extends State<InitFoods> {
         'High Protein Vegetarian',
         'Vegan'
       ];
+      bool isNonVeg = false;
+
       const nonFood = ['Snack', 'Dessert'];
 
       const nonVeg = ['High Protein Vegetarian', 'Non Vegeterian'];
+      for (var item in nonVeg) {
+        isNonVeg = userPrefs.contains(item);
+        if (isNonVeg) break;
+      }
       String dietTemp = allFoodsList.elementAt(i)['diet'];
-      if (veg.contains(dietTemp) && numVeg <= 1) {
-        numVeg += 1;
-        if (nonFood.contains(filtered.elementAt(i)['course'])) {
-          if (numNonFood <= 1) {
+      if (veg.contains(dietTemp) && numVeg <= 3) {
+        if (isNonVeg) numVeg += 1;
+        if (nonFood.contains(allFoodsList.elementAt(i)['course'])) {
+          if (numNonFood <= 3) {
             numNonFood += 1;
-            foods.add(filtered.elementAt(i));
+            foods.add(allFoodsList.elementAt(i));
             j++;
           }
         } else {
-          foods.add(filtered.elementAt(i));
+          foods.add(allFoodsList.elementAt(i));
           j++;
         }
-      } else if (nonVeg.contains(filtered.elementAt(i))) {
-        foods.add(filtered.elementAt(i));
+      } else if (nonVeg.contains(dietTemp)) {
+        foods.add(allFoodsList.elementAt(i));
         j++;
       }
-      if (j == 5) break;
-    }
-    setState(() {
-      // Work here
-      for (var i = 0; i < foods.length; i++) {
-        foods[i]['selected'] = false;
-        foods[i]['link'] =
-            "https://miro.medium.com/max/1400/1*MyAk_JfQZqzCF8qIIoWF5A.png";
-        ImagesHelper().getImage(foods[i]['recipe_title']).then((value) {
-          setState(() {
-            foods[i]['link'] = value;
-          });
-        });
-      }
-    });
+      if (j == 12) break;
+    } */
+    for (var i = 0; i < foods.length; i++)
+      foods.elementAt(i)['selected'] = false;
 
     /*  FirebaseFirestore.instance
         .collection('food_items')
@@ -126,12 +196,22 @@ class _InitFoodsState extends State<InitFoods> {
 
   void getSimilar(String cuisine, String diet, String category) {
     int i = 0;
-    for (var e in filtered) {
-      if (i <= 2) {
+    for (var e in allFoodsList) {
+      if (i <= 4) {
         if (e['cuisine'] == cuisine && e['diet'] == diet ||
             e['diet'] == diet && e['category'] == category ||
             e['cuisine'] == cuisine && e['category'] == category) {
           var temp = foods.firstWhere(
+              (element) => element['food_ID'] == e['food_ID'], orElse: () {
+            return {};
+          });
+          if (temp.isEmpty) {
+            e['selected'] = false;
+            foods.add(e);
+
+            i++;
+          }
+          /* var temp = foods.firstWhere(
               (element) => element['food_ID'] == e['food_ID'], orElse: () {
             return {};
           });
@@ -144,12 +224,9 @@ class _InitFoodsState extends State<InitFoods> {
                 e['link'] = value;
               });
             }).then((value) {
-              setState(() {
-                foods.add(e);
-              });
-              i++;
+              
             });
-          }
+          } */
         }
       } else {
         break;
@@ -199,6 +276,8 @@ class _InitFoodsState extends State<InitFoods> {
               });
               foods.forEach((element) async {
                 if (element['selected'] == true) {
+                  print(element['recipe_title']);
+
                   await updateRank(element['food_ID'], value: 5, isPrefs: true);
                 }
               });
@@ -247,24 +326,28 @@ class _InitFoodsState extends State<InitFoods> {
                             ),
                             itemCount: foods.length,
                             itemBuilder: (BuildContext context, int index) {
-                              Map<String, dynamic> item = foods[index];
+                              Map<String, dynamic> item =
+                                  foods.elementAt(index);
                               String name = item['recipe_title'];
-                              String link = foods[index]['link'];
+                              String link = item['imageURL'];
                               int id = item['food_ID'];
                               return GestureDetector(
                                   onTap: () {
-                                    getSimilar(
-                                        foods[index]['cuisine'],
-                                        foods[index]['diet'],
-                                        foods[index]['category']);
-                                    setState(() {});
+                                    /* foods.elementAt(index)['selected'] =
+                                        !foods.elementAt(index)['selected']; */
+                                    print(foods.elementAt(index)['selected']);
+
+                                    getSimilar(item['cuisine'], item['diet'],
+                                        item['category']);
+
                                     setState(() {
-                                      foods[index]['selected'] =
-                                          !foods[index]['selected'];
+                                      foods.elementAt(index)['selected'] =
+                                          !foods.elementAt(index)['selected'];
                                     });
+                                    print(foods.elementAt(index)['selected']);
                                   },
-                                  child: FoodTile(
-                                      name, link, foods[index]['selected']));
+                                  child: FoodTile(name, link,
+                                      foods.elementAt(index)['selected']));
                             }),
                       ),
                     ],

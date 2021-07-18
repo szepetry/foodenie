@@ -47,13 +47,37 @@ class _SignInPageState extends State<SignInPage> {
     }); */
   }
 
+  Future<bool> initUser(String uid, User fbUser) async {
+    try {
+      String fcmToken = await getFcmToken;
+      print(fcmToken);
+      AppUser appUser = AppUser(fbUser.displayName, fbUser.phoneNumber,
+          fbUser.email, fcmToken.trim());
+      await user.doc(uid).set(
+            appUser.userDetails,
+            SetOptions(merge: true),
+          );
+      print('a');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('fbUid', uid);
+      return true;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error has occurred'),
+        ),
+      );
+      Auth.signOut();
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-       // gradient: LinearGradient(colors: [Colors.lime, Colors.lime[300]]),
-        color:Colors.lime[100]
-      ),
+          // gradient: LinearGradient(colors: [Colors.lime, Colors.lime[300]]),
+          color: Colors.lime[100]),
       height: MediaQuery.of(context).size.height,
       child: Center(
         child: Column(
@@ -89,22 +113,13 @@ class _SignInPageState extends State<SignInPage> {
                                 cred = await Auth.signInWithGoogle();
                                 User fbUser = cred['cred'].user;
                                 String uid = fbUser.uid;
-
+                                print(uid);
                                 if (uid.length > 0) {
-                                  AppUser appUser = AppUser(fbUser.displayName,
-                                      fbUser.phoneNumber, fbUser.email);
-
                                   var userDoc =
                                       await user.doc(fbUser.uid).get();
 
                                   if (!userDoc.exists) {
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(uid)
-                                        .set(
-                                          appUser.userDetails,
-                                          SetOptions(merge: true),
-                                        );
+                                    print(await initUser(uid, fbUser));
                                   }
                                 }
                               } catch (e) {
