@@ -55,8 +55,8 @@ List<String> snacks = <String>[
   'https://www.dinneratthezoo.com/wp-content/uploads/2018/05/frozen-fruit-smoothie-3.jpg'
 ];
 
-String baseUrl =
-    'http://192.168.0.11:3000/'; //'https://us-central1-foodenie.cloudfunctions.net/app/';
+String baseUrl = 'https://us-central1-foodenie.cloudfunctions.net/app/';
+/* 'http://192.168.0.11:3000/'; */ //'https://us-central1-foodenie.cloudfunctions.net/app/';
 String token;
 String fbUid;
 Map<String, dynamic> userObj = {};
